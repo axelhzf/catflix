@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "file": "./graphql.schema.json"
+  },
+  "endpoints" : [
+    {
+      "url": "http://localhost:4000/graphql"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+type Images {
+    banner: String
+    fanart: String
+    poster: String
+}
+
+type Movie {
+    id: String
+    title: String!
+    year: String!
+    synopsis: String!
+    trailer: String
+    torrents: [Torrent]
+    images: Images
+}
+
+type Torrent {
+    lang: String
+    quality: String!
+    url: String!
+}
+
+type Subtitle {
+    lang: String
+    url: String
+}
+
+type Episode {
+    id: String
+    season: Int
+    episode: Int
+    title: String
+    overview: String
+    torrents: [Torrent]
+}
+
+type Show {
+    id: String
+    title: String
+    year: String
+    numSeasons: Int
+    images: Images
+    episodes(limit: Int): [Episode]
+}
+
+enum ServerStatus {
+    IDLE
+    DOWNLOADING_TORRENT
+    DOWNLOADING_SUBTITLE
+    LAUNCHING_CHROMECAST
+    PLAYING
+    PAUSED
+}
+
+enum ChromecastStatus {
+    IDLE,
+    BUFFERING,
+    PLAYING,
+    PAUSED
+}
+
+type Status {
+    server: ServerStatus,
+    chromecast: ChromecastStatus,
+}
+
+type Device {
+    name: String!
+    address: String!
+    port: Int!
+}
+
+type Query {
+    movies(page: Int) : [Movie]
+    movie(id: String!): Movie
+    shows(page: Int): [Show]
+    show(id: String!): Show
+    status: Status
+    devices: [Device]
+}
+
+type Mutation {
+    playEpisode(showId: String!, season: Int!, episode: Int!, quality: String, subtitleLang: String, device: String): Boolean
+    playMovie(id: String!, quality: String, subtitleLang: String, device: String): Boolean
+    pause: Boolean,
+    resume: Boolean
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+}
