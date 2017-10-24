@@ -84,7 +84,7 @@ export class ChromeCast {
     const playerState = status.playerState;
     this.playerState = playerState;
     logger.info('player status', this.playerState);
-  }
+  };
 
   async load(args: PlayArgs) {
     const loadingInOtherDevice = (args.device && args.device !== this.deviceName);
@@ -113,6 +113,13 @@ export class ChromeCast {
       await this.init();
     }
     await this.player.playAsync();
+  }
+
+  async stop() {
+    if (!this.player) {
+      await this.init();
+    }
+    await this.player.stopAsync();
   }
 
   private getMedia(args: PlayArgs) {

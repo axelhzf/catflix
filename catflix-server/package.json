@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "concurrently -k -p \"[{name}]\" -n \"ts,node,gql\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\" \"npm run graphql-schema-watch\"",
+    "start": "concurrently -k -p \"[{name}]\" -n \"ts,node,gql\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\" \"npm run graphql-schema-watch\"",
     "serve": "nodemon --delay 2500ms dist/index.js",
     "watch-ts": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",

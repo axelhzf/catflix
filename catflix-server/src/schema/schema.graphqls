@@ -83,7 +83,8 @@ type Mutation {
     playEpisode(showId: String!, season: Int!, episode: Int!, quality: String, subtitleLang: String, device: String): Boolean
     playMovie(id: String!, quality: String, subtitleLang: String, device: String): Boolean
     pause: Boolean,
-    resume: Boolean
+    resume: Boolean,
+    stop: Boolean
 }
 
 schema {

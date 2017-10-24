@@ -56,7 +56,7 @@ export class SubtitlesServer {
     });
   }
 
-  private async destroy() {
+  async destroy() {
     return new Promise(resolve => {
       if (this.server && this.server.destroy)
         return this.server.destroy(resolve);

@@ -90,6 +90,13 @@ export class Player {
   play() {
     return this.chromeCast.play();
   }
+
+  async stop() {
+    await this.chromeCast.stop();
+    await this.subtitlesServer.destroy();
+    await this.torrentStreaming.destroy();
+  }
+
 }
 
 type LoadEpisodeArgs = {

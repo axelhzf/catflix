@@ -139,9 +139,15 @@ export default {
     },
     pause: async () => {
       await player.pause();
+      return true;
     },
     resume: async () => {
       await player.play();
+      return true;
+    },
+    stop: async () => {
+      await player.stop()
+      return true;
     }
   }
 };

@@ -86,6 +86,10 @@ export type PlayerBarPauseMutation = {
   pause: boolean | null,
 };
 
+export type PlayerBarStopMutation = {
+  stop: boolean | null,
+};
+
 export type DevicesQuery = {
   devices:  Array< {
     name: string,

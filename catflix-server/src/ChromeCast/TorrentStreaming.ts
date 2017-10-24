@@ -44,7 +44,9 @@ export class TorrentStreaming {
     return new Promise(resolve => {
       if (this.engine) {
         logger.info('destroying torrent server');
-        return this.engine.server.destroy(resolve);
+        this.engine.server.destroy(() => {
+          this.engine.destroy(resolve);
+        });
       }
       resolve();
     });

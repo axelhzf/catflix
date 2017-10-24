@@ -9,6 +9,7 @@ type Props = {
   status: QueryProps & PlayerBarQuery;
   resume: () => void;
   pause: () => void;
+  stop: () => void;
 };
 
 class PlayerBar extends React.Component<Props> {
@@ -42,6 +43,9 @@ class PlayerBar extends React.Component<Props> {
             <Ionicons name="ios-pause" size={32} color={colors.text} />
           </TouchableHighlight>
         )}
+        <TouchableHighlight style={{ paddingRight: 16, paddingLeft: 16 }} onPress={() => this.props.stop()}>
+          <Ionicons name="ios-close" size={32} color={colors.text} />
+        </TouchableHighlight>
       </View>
     );
   }
@@ -126,6 +130,14 @@ const enhance = compose(
       }
     `,
     { name: 'pause' }
+  ),
+  graphql(
+    gql`
+      mutation PlayerBarStop {
+        stop
+      }
+    `,
+    { name: 'stop' }
   )
 );
 
