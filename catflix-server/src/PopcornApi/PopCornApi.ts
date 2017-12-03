@@ -7,7 +7,7 @@ import { logger } from '../logger';
 export class PopCornApi {
   async getMovies(page: number = 1): Promise<PopCornMovie[]> {
     logger.info(`getMovies ${page}`);
-    const response = await fetch(`https://api-fetch.website/tv/movies/${page}`);
+    const response = await fetch(`https://api-fetch.website/tv/movies/${page}?sort=trending`);
     return await response.json();
   }
 

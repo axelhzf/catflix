@@ -31,7 +31,11 @@ export class TorrentStreaming {
 
   private startEngine(torrent: any) {
     return new Promise((resolve, reject) => {
-      const engine = peerflix(torrent, { port: TORRENT_PORT });
+      const opts = {
+        port: TORRENT_PORT,
+        tmp: __dirname + '/../../../tmp'
+      };
+      const engine = peerflix(torrent, opts);
       engine.server.once('listening', () => {
         logger.info('torrent server started');
         resolve(engine);

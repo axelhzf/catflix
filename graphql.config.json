@@ -1,0 +1,5 @@
+{
+  "schema": {
+    "file": "catflix-server/src/schema/schema.graphqls"
+  }
+}
