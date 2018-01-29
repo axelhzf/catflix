@@ -1,6 +1,6 @@
-import * as peerflix from 'peerflix';
 import { v4 as internalIp } from 'internal-ip';
 import * as magnet from 'magnet-uri';
+import * as peerflix from 'peerflix';
 import * as enableDestroy from 'server-destroy';
 import { logger } from '../logger';
 
@@ -44,6 +44,23 @@ export class TorrentStreaming {
     });
   }
 
+  getStats(): Stats {
+    if (!this.engine) {
+      return {totalLength: 0, downloaded: 0, uploaded: 0, downloadSpeed: 0, uploadSpeed: 0};
+    }
+
+    const totalLength = this.engine.files.reduce(function (prevFileLength, currFile) {
+      return prevFileLength + currFile.length;
+    }, 0);
+    const downloaded = this.engine.swarm.downloaded;
+    const uploaded = this.engine.swarm.uploaded;
+    const downloadSpeed = parseInt(this.engine.swarm.downloadSpeed(), 10);
+    const uploadSpeed = parseInt(this.engine.swarm.uploadSpeed(), 10);
+
+    const stats = {totalLength, downloaded, uploaded, downloadSpeed, uploadSpeed};
+    return stats;
+  };
+
   async destroy() {
     return new Promise(resolve => {
       if (this.engine) {
@@ -75,3 +92,11 @@ type StreamResponse = {
     length: number;
   };
 };
+
+type Stats = {
+  totalLength: number,
+  downloaded: number,
+  uploaded: number,
+  downloadSpeed: number,
+  uploadSpeed: number
+}

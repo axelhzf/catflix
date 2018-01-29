@@ -21,7 +21,8 @@ export class Player {
   getStatus(): Status {
     const status = {
       server: this._status,
-      chromecast: this.chromeCast.playerState
+      chromecast: this.chromeCast.playerState,
+      torrent: this.torrentStreaming.getStats()
     };
     return status;
   }

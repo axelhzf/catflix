@@ -60,9 +60,18 @@ enum ChromecastStatus {
     PAUSED
 }
 
+type TorrentStatus {
+    totalLength: Float!,
+    downloaded: Float!,
+    uploaded: Float!,
+    downloadSpeed: Float!,
+    uploadSpeed: Float!
+}
+
 type Status {
     server: ServerStatus,
     chromecast: ChromecastStatus,
+    torrent: TorrentStatus
 }
 
 type Device {
