@@ -78,7 +78,8 @@ export class Player {
       imageUrl:
         args.movie.images.poster ||
         args.movie.images.banner ||
-        args.movie.images.fanart
+        args.movie.images.fanart,
+      device: args.device
     });
     this._status = 'PLAYING';
   }

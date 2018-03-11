@@ -24,8 +24,10 @@ export class ChromeCast {
       this.device = devices[0];
     } else {
       const device = _.find(devices, device => device.name === deviceName);
-      this.device = device !== undefined ? device : devices[0];
+      if (!device) throw new Error(`Device with name ${this.deviceName} not found`);
+      this.device = device;
     }
+
     this.client = new Client();
     promisifyAll(this.client);
 
