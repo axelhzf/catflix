@@ -5,6 +5,11 @@ import { promisifyAll } from 'bluebird';
 import * as _ from 'lodash';
 import { ChromecastStatus } from '../schema/schema';
 
+mdns.Browser.defaultResolverSequence[1] =
+  'DNSServiceGetAddrInfo' in mdns.dns_sd
+    ? mdns.rst.DNSServiceGetAddrInfo()
+    : mdns.rst.getaddrinfo({ families: [4] }); //fix for Raspberry Pi's mdns browser https://github.com/agnat/node_mdns/issues/130
+
 export class ChromeCast {
   deviceName: string | undefined;
   device: Device | undefined;
@@ -26,7 +31,7 @@ export class ChromeCast {
 
     logger.info('connecting to device', this.device.name);
     await this.client.connectAsync(this.device.address);
-    this.client.on('error',  (e) => {
+    this.client.on('error', e => {
       console.error(e);
       this.client = undefined;
       this.player = undefined;
@@ -38,9 +43,15 @@ export class ChromeCast {
     const sessions = await this.client.getSessionsAsync();
     logger.info(`sessions `, sessions);
 
-    const application = _.find(status.applications, (app) => app.appId === DefaultMediaReceiver.APP_ID);
+    const application = _.find(
+      status.applications,
+      app => app.appId === DefaultMediaReceiver.APP_ID
+    );
     if (application) {
-      this.player = await this.client.joinAsync(application, DefaultMediaReceiver);
+      this.player = await this.client.joinAsync(
+        application,
+        DefaultMediaReceiver
+      );
     } else {
       this.player = await this.client.launchAsync(DefaultMediaReceiver);
     }
@@ -49,7 +60,7 @@ export class ChromeCast {
     const playerStatus = await this.player.getStatusAsync();
     logger.info('player status', playerStatus);
 
-    this.player.on('error', (e) => {
+    this.player.on('error', e => {
       logger.error('player error', e);
       this.client = undefined;
       this.player = undefined;
@@ -61,7 +72,7 @@ export class ChromeCast {
       logger.info('searching for devices');
       const devices: Device[] = [];
       const browser = mdns.createBrowser(mdns.tcp('googlecast'));
-      browser.on('serviceUp', (service) => {
+      browser.on('serviceUp', service => {
         const device: Device = {
           name: service.txtRecord.fn,
           address: service.addresses[0],
@@ -80,14 +91,14 @@ export class ChromeCast {
     return devices;
   }
 
-  private onStatus = (status) => {
+  private onStatus = status => {
     const playerState = status.playerState;
     this.playerState = playerState;
     logger.info('player status', this.playerState);
   };
 
   async load(args: PlayArgs) {
-    const loadingInOtherDevice = (args.device && args.device !== this.deviceName);
+    const loadingInOtherDevice = args.device && args.device !== this.deviceName;
     if (!this.player || loadingInOtherDevice) {
       await this.init(args.device);
     }
