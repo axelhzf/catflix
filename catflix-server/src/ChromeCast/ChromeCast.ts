@@ -15,7 +15,7 @@ export class ChromeCast {
   device: Device | undefined;
   client: any | undefined;
   player: any | undefined;
-  playerState: ChromecastStatus;
+  playerState: ChromecastStatus = 'IDLE';
 
   private async init(deviceName?: string) {
     const devices = await ChromeCast.searchDevices();

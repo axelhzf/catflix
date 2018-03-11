@@ -50,6 +50,7 @@ enum ServerStatus {
     LAUNCHING_CHROMECAST
     PLAYING
     PAUSED
+    ERROR
 }
 
 enum ChromecastStatus {

@@ -2,6 +2,9 @@ import { config } from 'dotenv';
 import * as graphqlHTTP from 'express-graphql';
 import schema from './schema';
 import { logger } from './logger';
+import * as mdns from 'mdns';
+
+const PORT = 4000;
 
 config();
 
@@ -17,8 +20,8 @@ app.use(
   })
 );
 
-const PORT = 4000;
-
 app.listen(PORT, () => {
   logger.info(`Server running. Open http://localhost:${PORT}`);
+  const ad = mdns.createAdvertisement(mdns.tcp('catflix'), PORT);
+  ad.start();
 });

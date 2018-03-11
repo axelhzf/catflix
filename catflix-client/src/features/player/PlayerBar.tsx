@@ -63,6 +63,8 @@ class PlayerBar extends React.Component<Props> {
         return 'Downloading subtitles...';
       case 'LAUNCHING_CHROMECAST':
         return 'Launching chromecast...';
+      case 'ERROR':
+        return 'Error';
       case 'PLAYING': {
         switch (this.props.status.status.chromecast) {
           case 'IDLE':

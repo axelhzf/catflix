@@ -21,26 +21,32 @@ const OpenSubtitles = new OS({
   ssl: true
 });
 
-export class SubtitlesServer {
-  private server: Server & { destroy?: (cb: () => void) => void } | undefined;
+type SubtitlesHttpServer = Server & { destroy?: (cb: () => void) => void }
 
-  async serve(fileName: string, length: number, lang: string) {
+export class SubtitlesServer {
+  private server: SubtitlesHttpServer |  undefined;
+
+  async serve(fileName: string, length: number, lang: string): Promise<string | undefined> {
     logger.info('downloading subtitles for', fileName);
     const subtitle = await this.findSubtitle(fileName, length, lang);
+    if (!subtitle) {
+      logger.info('subtitle not found');
+      return undefined;
+    }
     logger.info('subtitle found', subtitle);
     const subtitlesContent = await this.downloadSubtitle(subtitle);
     logger.info('subtitle downloaded');
     const vttSubtitles = await srt2vtt2(subtitlesContent);
     logger.info('subtitle converted to vtt');
     await this.destroy();
-    await this.startServer(vttSubtitles, subtitle.encoding);
+    const server = await this.startServer(vttSubtitles, subtitle.encoding);
     const ip = await internalIp();
-    const serverUrl = `http://${ip}:${this.server.address().port}`;
+    const serverUrl = `http://${ip}:${server.address().port}`;
     logger.info('serving subtitle at', serverUrl);
     return serverUrl;
   }
 
-  private startServer(vttSubtitles: any, encoding: string) {
+  private startServer(vttSubtitles: any, encoding: string): Promise<SubtitlesHttpServer> {
     return new Promise(resolve => {
       this.server = http.createServer((req, res) => {
         logger.info('incoming subtitles request');
@@ -52,7 +58,9 @@ export class SubtitlesServer {
         enableDestroy(this.server);
         res.end(vttSubtitles);
       });
-      this.server.listen(SUBTITLES_PORT, resolve);
+      this.server.listen(SUBTITLES_PORT, () => {
+        resolve(this.server);
+      });
     });
   }
 

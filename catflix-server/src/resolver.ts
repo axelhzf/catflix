@@ -54,7 +54,7 @@ export default {
         _.map(torrentQuality, (torrent, quality) => ({
           lang,
           quality,
-          url: torrent.url
+          url: torrent ? torrent.url : undefined
         }))
       );
       return torrents;
@@ -77,7 +77,7 @@ export default {
     id: (episode: PopCornShowEpisode) => episode.tvdb_id,
     torrents(episode: PopCornShowEpisode) {
       const torrents = _.map(episode.torrents, (torrent, quality) => {
-        return { quality, url: torrent.url };
+        return { quality, url: torrent ? torrent.url : undefined };
       });
       return torrents;
     }
@@ -146,7 +146,7 @@ export default {
       return true;
     },
     stop: async () => {
-      await player.stop()
+      await player.stop();
       return true;
     }
   }

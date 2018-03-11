@@ -8,6 +8,7 @@ export enum ServerStatus {
   LAUNCHING_CHROMECAST = "LAUNCHING_CHROMECAST",
   PLAYING = "PLAYING",
   PAUSED = "PAUSED",
+  ERROR = "ERROR",
 }
 
 

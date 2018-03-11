@@ -1,3 +1,4 @@
 .expo/
 npm-debug.*
 dist
+yarn-error.log
