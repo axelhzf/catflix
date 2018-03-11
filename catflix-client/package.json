@@ -9,6 +9,7 @@
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
+    "build": "tsc",
     "start": "concurrently -k -p \"[{name}]\" -n \"ts,rn\" -c \"yellow.bold,cyan.bold\" \"npm run start-ts\" \"npm run start-rn\"",
     "start-ts": "tsc -w",
     "start-rn": "react-native-scripts start",
