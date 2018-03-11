@@ -55,7 +55,7 @@ class PlayerBar extends React.Component<Props> {
 
   getProgress() {
     const { status } = this.props.status;
-    if (!status) return "";
+    if (!status || !status.torrent) return "";
     if (status.torrent.totalLength === 0) return "";
     const currentPercentage = (status.torrent.downloaded * 100 / status.torrent.totalLength);
     return `${currentPercentage.toFixed(2)}% ${(status.torrent.downloadSpeed / 1000).toFixed(2)}Kb/s`;
