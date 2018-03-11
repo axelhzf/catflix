@@ -11,7 +11,6 @@ mdns.Browser.defaultResolverSequence[1] =
     : mdns.rst.getaddrinfo({ families: [4] }); //fix for Raspberry Pi's mdns browser https://github.com/agnat/node_mdns/issues/130
 
 export class ChromeCast {
-  deviceName: string | undefined;
   device: Device | undefined;
   client: any | undefined;
   player: any | undefined;
@@ -24,7 +23,7 @@ export class ChromeCast {
       this.device = devices[0];
     } else {
       const device = _.find(devices, device => device.name === deviceName);
-      if (!device) throw new Error(`Device with name ${this.deviceName} not found`);
+      if (!device) throw new Error(`Device with name ${deviceName} not found`);
       this.device = device;
     }
 
@@ -99,8 +98,12 @@ export class ChromeCast {
     logger.info('player status', this.playerState);
   };
 
+  getDeviceName() {
+    return this.device ? this.device.name : undefined;
+  }
+
   async load(args: PlayArgs) {
-    const loadingInOtherDevice = args.device && args.device !== this.deviceName;
+    const loadingInOtherDevice = args.device && args.device !== this.getDeviceName();
     if (!this.player || loadingInOtherDevice) {
       await this.init(args.device);
     }

@@ -17,7 +17,7 @@ type Movie {
 type Torrent {
     lang: String
     quality: String!
-    url: String!
+    url: String
 }
 
 type Subtitle {
@@ -72,6 +72,7 @@ type Status {
     server: ServerStatus,
     chromecast: ChromecastStatus,
     torrent: TorrentStatus
+    device: String
 }
 
 type Device {

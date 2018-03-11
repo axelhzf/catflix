@@ -22,6 +22,7 @@ export class Player {
     const status = {
       server: this._status,
       chromecast: this.chromeCast.playerState,
+      device: this.chromeCast.getDeviceName(),
       torrent: this.torrentStreaming.getStats()
     };
     return status;
@@ -122,6 +123,6 @@ type LoadEpisodeArgs = {
 type LoadMovieArgs = {
   movie: PopCornMovie;
   torrent: PopCornMovieTorrent;
-  subtitleLang?: string;
-  device?: string;
+  subtitleLang: string | undefined;
+  device: string | undefined;
 };

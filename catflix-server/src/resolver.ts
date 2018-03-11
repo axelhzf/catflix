@@ -28,13 +28,13 @@ const player = new Player();
 export default {
   Query: {
     async movies(obj: undefined, args: MoviesQueryArgs) {
-      return await popCornApi.getMovies(args.page);
+      return await popCornApi.getMovies(args.page || undefined);
     },
     async movie(obj: undefined, args: MovieQueryArgs) {
       return await popCornApi.getMovie(args.id);
     },
     async shows(obj: undefined, args: ShowsQueryArgs) {
-      const shows = await popCornApi.getShows(args.page);
+      const shows = await popCornApi.getShows(args.page || undefined);
       return shows;
     },
     async show(obj: undefined, args: ShowQueryArgs) {
@@ -77,7 +77,7 @@ export default {
     id: (episode: PopCornShowEpisode) => episode.tvdb_id,
     torrents(episode: PopCornShowEpisode) {
       const torrents = _.map(episode.torrents, (torrent, quality) => {
-        return { quality, url: torrent ? torrent.url : undefined };
+        return {quality, url: torrent ? torrent.url : undefined};
       });
       return torrents;
     }
@@ -96,8 +96,8 @@ export default {
         .loadMovie({
           movie,
           torrent,
-          subtitleLang: args.subtitleLang,
-          device: args.device
+          subtitleLang: args.subtitleLang || undefined,
+          device: args.device || undefined
         })
         .catch(e => console.error(e));
     },
@@ -132,8 +132,8 @@ export default {
           show,
           episode,
           torrent,
-          subtitleLang: args.subtitleLang,
-          device: args.device
+          subtitleLang: args.subtitleLang || undefined,
+          device: args.device || undefined
         })
         .catch(e => console.error(e));
     },
@@ -152,9 +152,7 @@ export default {
   }
 };
 
-function bestTorrent(
-  torrents: PopCornMovieTorrentQuality | PopCornShowEpisodeTorrents
-) {
+function bestTorrent(torrents: PopCornMovieTorrentQuality | PopCornShowEpisodeTorrents) {
   return (
     torrents['1080p'] || torrents['720p'] || torrents['480p'] || torrents['0']
   );
