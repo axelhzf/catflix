@@ -76,6 +76,12 @@ export type PlayerBarQuery = {
   status:  {
     server: ServerStatus | null,
     chromecast: ChromecastStatus | null,
+    device: string | null,
+    torrent:  {
+      downloadSpeed: number,
+      downloaded: number,
+      totalLength: number,
+    } | null,
   } | null,
 };
 
@@ -112,7 +118,7 @@ export type ShowQuery = {
       episode: number | null,
       torrents:  Array< {
         quality: string,
-        url: string,
+        url: string | null,
       } | null > | null,
     } | null > | null,
   } | null,

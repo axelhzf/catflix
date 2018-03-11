@@ -17,8 +17,9 @@
     "android": "react-native-scripts android",
     "ios": "react-native-scripts ios",
     "test": "node node_modules/jest/bin/jest.js --watch",
-    "graphql-schema-json": "apollo-codegen introspect-schema http://localhost:4000/graphql --output graphql.schema.json",
-    "graphql-schema-ts": "apollo-codegen generate \"src/**/*.tsx\" --schema graphql.schema.json --target typescript --output src/schema.ts",
+    "gql": "npm run gql:json && npm run gql:ts",
+    "gql:json": "apollo-codegen introspect-schema http://localhost:4000/graphql --output graphql.schema.json",
+    "gql:ts": "apollo-codegen generate \"src/**/*.tsx\" --schema graphql.schema.json --target typescript --output src/schema.ts",
     "prettier": "prettier --single-quote --write \"src/**/*.{ts,tsx}\""
   },
   "jest": {

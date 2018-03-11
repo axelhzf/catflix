@@ -18,19 +18,15 @@ class PlayerBar extends React.Component<Props> {
   }
 
   render() {
+    const status = this.props.status.status;
     const canPause =
-      this.props.status.status &&
-      this.props.status.status.server === 'PLAYING' &&
-      (this.props.status.status.chromecast === 'PLAYING' ||
-        this.props.status.status.chromecast === 'BUFFERING');
-    const canPlay =
-      this.props.status.status &&
-      this.props.status.status.server === 'PLAYING' &&
-      this.props.status.status.chromecast === 'PAUSED';
+      status &&
+      status.server === 'PLAYING' && (status.chromecast === 'PLAYING' || status.chromecast === 'BUFFERING');
+    const canPlay = status && status.server === 'PLAYING' && status.chromecast === 'PAUSED';
     return (
       <View style={styles.container}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.device}>Device: MOCK Batcueva</Text>
+          <Text style={styles.device}>{this.getDeviceName()} - {this.getProgress()}</Text>
           <Text style={styles.status}>{this.getStatusText()}</Text>
         </View>
         {canPlay && (
@@ -50,15 +46,32 @@ class PlayerBar extends React.Component<Props> {
     );
   }
 
+  getDeviceName() {
+    const { status } = this.props.status;
+    if (!status) return "No device connected";
+    if (!status.device) return "No device connected";
+    return status.device;
+  }
+
+  getProgress() {
+    const { status } = this.props.status;
+    if (!status) return "";
+    const currentPercentage = (status.torrent.downloaded * 100 / status.torrent.totalLength);
+    return `${currentPercentage.toFixed(2)}% ${(status.torrent.downloadSpeed / 1000).toFixed(2)}Kb/s`;
+  }
+
   getStatusText() {
     if (this.props.status.loading) return 'Loading...';
     if (this.props.status.error) return 'Error';
-    if (this.props.status.status.server === 'IDLE') return 'Ready';
-    switch (this.props.status.status.server) {
+
+    const { status } = this.props.status;
+    switch (status.server) {
       case 'IDLE':
         return 'Ready';
-      case 'DOWNLOADING_TORRENT':
-        return 'Downloading torrent...';
+      case 'DOWNLOADING_TORRENT': {
+        const currentPercentage = (status.torrent.downloaded * 100 / status.torrent.totalLength);
+        return `Downloading torrent`;
+      }
       case 'DOWNLOADING_SUBTITLE':
         return 'Downloading subtitles...';
       case 'LAUNCHING_CHROMECAST':
@@ -112,6 +125,12 @@ const enhance = compose(
         status {
           server
           chromecast
+          device
+          torrent {
+            downloadSpeed
+            downloaded
+            totalLength
+          }
         }
       }
     `,
