@@ -39,7 +39,12 @@ export class Player {
       if (args.subtitleLang) {
         this._status = 'DOWNLOADING_SUBTITLE';
         subtitlesUrl = await this.subtitlesServer.serve(
-          streamingTorrent.file.name,
+          {
+            type: 'episode',
+            imdbid: args.show.imdb_id,
+            season: args.episode.season,
+            episode: args.episode.episode
+          },
           streamingTorrent.file.length,
           args.subtitleLang
         );
@@ -49,9 +54,9 @@ export class Player {
         url: streamingTorrent.url,
         title: streamingTorrent.file.name,
         imageUrl:
-        args.show.images.poster ||
-        args.show.images.banner ||
-        args.show.images.fanart,
+          args.show.images.poster ||
+          args.show.images.banner ||
+          args.show.images.fanart,
         subtitlesUrl,
         device: args.device
       });
@@ -73,7 +78,7 @@ export class Player {
       let subtitlesUrl;
       if (args.subtitleLang) {
         subtitlesUrl = await this.subtitlesServer.serve(
-          streamingTorrent.file.name,
+          { type: 'movie', imdbid: args.movie.imdb_id },
           streamingTorrent.file.length,
           args.subtitleLang
         );
@@ -84,9 +89,9 @@ export class Player {
         title: streamingTorrent.file.name,
         subtitlesUrl,
         imageUrl:
-        args.movie.images.poster ||
-        args.movie.images.banner ||
-        args.movie.images.fanart,
+          args.movie.images.poster ||
+          args.movie.images.banner ||
+          args.movie.images.fanart,
         device: args.device
       });
       this._status = 'PLAYING';
@@ -109,7 +114,6 @@ export class Player {
     await this.subtitlesServer.destroy();
     await this.torrentStreaming.destroy();
   }
-
 }
 
 type LoadEpisodeArgs = {

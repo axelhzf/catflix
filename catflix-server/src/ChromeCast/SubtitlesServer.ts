@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import * as iconv from 'iconv-lite';
 import { logger } from '../logger';
 import * as enableDestroy from 'server-destroy';
+import { MediaId } from '../types/MediaId';
 
 const srt2vtt2 = promisify(srt2vtt);
 
@@ -26,9 +27,9 @@ type SubtitlesHttpServer = Server & { destroy?: (cb: () => void) => void }
 export class SubtitlesServer {
   private server: SubtitlesHttpServer |  undefined;
 
-  async serve(fileName: string, length: number, lang: string): Promise<string | undefined> {
-    logger.info('downloading subtitles for', fileName);
-    const subtitle = await this.findSubtitle(fileName, length, lang);
+  async serve(mediaId: MediaId, length: number, lang: string): Promise<string | undefined> {
+    logger.info('downloading subtitles for', mediaId);
+    const subtitle = await this.findSubtitle(mediaId, length, lang);
     if (!subtitle) {
       logger.info('subtitle not found');
       return undefined;
@@ -72,19 +73,24 @@ export class SubtitlesServer {
     });
   }
 
-  private async findSubtitle(
-    fileName: string,
+  async findSubtitle(
+    id: MediaId,
     length: number,
     lang: string
   ): Promise<Subtitle | undefined> {
     // https://github.com/vankasteelj/opensubtitles-api#search-the-best-subtitles-in-all-languages-for-a-given-movieepisode
-    const subtitles = await OpenSubtitles.search({
+    const args = {
       sublanguageid: lang,
-      filename: fileName,
       limit: 'best',
+      imdbid: id.imdbid,
       filesize: length,
-      gzip: false
-    });
+      gzip: false,
+    } as any;
+    if (id.type === 'episode') {
+      args.season = id.season;
+      args.episode = id.episode;
+    }
+    const subtitles = await OpenSubtitles.search(args);
     const first = _.head(_.keys(subtitles));
     if (!first) return undefined;
     return subtitles[first] as Subtitle;
