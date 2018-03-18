@@ -140,7 +140,7 @@ const enhance = compose(
       $episode: Int!
       $quality: String
       $subtitleLang: String
-      $device: String
+      $device: String!
     ) {
       playEpisode(
         showId: $showId

@@ -104,7 +104,7 @@ const enhance = compose(
     }
   `),
   graphql(gql`
-    mutation playMovie($id: String!, $quality: String, $subtitleLang: String, $device: String) {
+    mutation playMovie($id: String!, $quality: String, $subtitleLang: String, $device: String!) {
       playMovie(id: $id, quality: $quality, subtitleLang: $subtitleLang, device: $device)
     }
   `)

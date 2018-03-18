@@ -28,23 +28,28 @@ export class SubtitlesServer {
   private server: SubtitlesHttpServer |  undefined;
 
   async serve(mediaId: MediaId, length: number, lang: string): Promise<string | undefined> {
-    logger.info('downloading subtitles for', mediaId);
-    const subtitle = await this.findSubtitle(mediaId, length, lang);
-    if (!subtitle) {
-      logger.info('subtitle not found');
+    try {
+      logger.info('downloading subtitles for', mediaId);
+      const subtitle = await this.findSubtitle(mediaId, length, lang);
+      if (!subtitle) {
+        logger.info('subtitle not found');
+        return undefined;
+      }
+      logger.info('subtitle found', subtitle);
+      const subtitlesContent = await this.downloadSubtitle(subtitle);
+      logger.info('subtitle downloaded');
+      const vttSubtitles = await srt2vtt2(subtitlesContent);
+      logger.info('subtitle converted to vtt');
+      await this.destroy();
+      const server = await this.startServer(vttSubtitles, subtitle.encoding);
+      const ip = await internalIp();
+      const serverUrl = `http://${ip}:${server.address().port}`;
+      logger.info('serving subtitle at', serverUrl);
+      return serverUrl;
+    } catch (e) {
+      logger.error('error downloading subtitle', e);
       return undefined;
     }
-    logger.info('subtitle found', subtitle);
-    const subtitlesContent = await this.downloadSubtitle(subtitle);
-    logger.info('subtitle downloaded');
-    const vttSubtitles = await srt2vtt2(subtitlesContent);
-    logger.info('subtitle converted to vtt');
-    await this.destroy();
-    const server = await this.startServer(vttSubtitles, subtitle.encoding);
-    const ip = await internalIp();
-    const serverUrl = `http://${ip}:${server.address().port}`;
-    logger.info('serving subtitle at', serverUrl);
-    return serverUrl;
   }
 
   private startServer(vttSubtitles: any, encoding: string): Promise<SubtitlesHttpServer> {

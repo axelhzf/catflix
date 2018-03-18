@@ -11,7 +11,10 @@ import {
   ShowsQueryArgs,
   PlayEpisodeMutationArgs,
   PlayMovieMutationArgs,
-  ShowQueryArgs
+  ShowQueryArgs,
+  PauseMutationArgs,
+  ResumeMutationArgs,
+  StopMutationArgs
 } from './schema/schema';
 import { PopCornShow } from './PopcornApi/PopCornShow';
 import {
@@ -77,7 +80,7 @@ export default {
     id: (episode: PopCornShowEpisode) => episode.tvdb_id,
     torrents(episode: PopCornShowEpisode) {
       const torrents = _.map(episode.torrents, (torrent, quality) => {
-        return {quality, url: torrent ? torrent.url : undefined};
+        return { quality, url: torrent ? torrent.url : undefined };
       });
       return torrents;
     }
@@ -93,16 +96,16 @@ export default {
         throw new Error('torrent not found');
       }
       player
-        .loadMovie({
+        .load({
+          type: 'movie',
           movie,
           torrent,
           subtitleLang: args.subtitleLang || undefined,
-          device: args.device || undefined
+          device: args.device
         })
         .catch(e => console.error(e));
     },
     playEpisode: async (obj: undefined, args: PlayEpisodeMutationArgs) => {
-      console.log('play episode args', args);
       const show = await popCornApi.getShow(args.showId);
       if (!show) throw new Error(`show ${args.showId} not found`);
       const episode = _.find(
@@ -128,31 +131,34 @@ export default {
         throw new Error(`torrent not found`);
       }
       player
-        .loadEpisode({
+        .load({
+          type: 'episode',
           show,
           episode,
           torrent,
           subtitleLang: args.subtitleLang || undefined,
-          device: args.device || undefined
+          device: args.device
         })
         .catch(e => console.error(e));
     },
-    pause: async () => {
-      await player.pause();
+    pause: async (obj, args: PauseMutationArgs) => {
+      await player.pause(args.device);
       return true;
     },
-    resume: async () => {
-      await player.play();
+    resume: async (obj, args: ResumeMutationArgs) => {
+      await player.play(args.device);
       return true;
     },
-    stop: async () => {
-      await player.stop();
+    stop: async (obj, args: StopMutationArgs) => {
+      await player.stop(args.device);
       return true;
     }
   }
 };
 
-function bestTorrent(torrents: PopCornMovieTorrentQuality | PopCornShowEpisodeTorrents) {
+function bestTorrent(
+  torrents: PopCornMovieTorrentQuality | PopCornShowEpisodeTorrents
+) {
   return (
     torrents['1080p'] || torrents['720p'] || torrents['480p'] || torrents['0']
   );

@@ -117,25 +117,34 @@ export class ChromeCast {
     return status;
   }
 
-  async pause() {
+  async pause(device: string) {
     if (!this.player) {
-      await this.init();
+      await this.init(device);
     }
     await this.player.pauseAsync();
   }
 
-  async play() {
+  async play(device: string) {
     if (!this.player) {
-      await this.init();
+      await this.init(device);
     }
     await this.player.playAsync();
   }
 
-  async stop() {
+  async stop(device: string) {
     if (!this.player) {
-      await this.init();
+      await this.init(device);
     }
-    await this.player.stopAsync();
+    const playerState = await this.getPlayerState();
+    if (playerState === 'PLAYING') {
+      await this.player.stopAsync();
+    }
+  }
+
+  private async getPlayerState(): Promise<PlayerState | undefined> {
+    const status = await this.player.getStatusAsync();
+    if (!status) return;
+    return status.playerState;
   }
 
   private getMedia(args: PlayArgs) {
@@ -184,6 +193,10 @@ export class ChromeCast {
     return media;
   }
 }
+
+type PlayerState =
+  'IDLE' |
+  'PLAYING';
 
 type PlayArgs = {
   url: string;

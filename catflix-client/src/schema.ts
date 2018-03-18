@@ -41,7 +41,7 @@ export type HomePlayMovieMutationVariables = {
   id: string,
   quality?: string | null,
   subtitleLang?: string | null,
-  device?: string | null,
+  device: string,
 };
 
 export type HomePlayMovieMutation = {
@@ -65,7 +65,7 @@ export type playMovieMutationVariables = {
   id: string,
   quality?: string | null,
   subtitleLang?: string | null,
-  device?: string | null,
+  device: string,
 };
 
 export type playMovieMutation = {
@@ -85,12 +85,24 @@ export type PlayerBarQuery = {
   } | null,
 };
 
+export type PlayerBarResumeMutationVariables = {
+  device: string,
+};
+
 export type PlayerBarResumeMutation = {
   resume: boolean | null,
 };
 
+export type PlayerBarPauseMutationVariables = {
+  device: string,
+};
+
 export type PlayerBarPauseMutation = {
   pause: boolean | null,
+};
+
+export type PlayerBarStopMutationVariables = {
+  device: string,
 };
 
 export type PlayerBarStopMutation = {
@@ -130,7 +142,7 @@ export type playEpisodeMutationVariables = {
   episode: number,
   quality?: string | null,
   subtitleLang?: string | null,
-  device?: string | null,
+  device: string,
 };
 
 export type playEpisodeMutation = {

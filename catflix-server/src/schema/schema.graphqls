@@ -91,11 +91,11 @@ type Query {
 }
 
 type Mutation {
-    playEpisode(showId: String!, season: Int!, episode: Int!, quality: String, subtitleLang: String, device: String): Boolean
-    playMovie(id: String!, quality: String, subtitleLang: String, device: String): Boolean
-    pause: Boolean,
-    resume: Boolean,
-    stop: Boolean
+    playEpisode(showId: String!, season: Int!, episode: Int!, quality: String, subtitleLang: String, device: String!): Boolean
+    playMovie(id: String!, quality: String, subtitleLang: String, device: String!): Boolean
+    pause(device: String!): Boolean,
+    resume(device: String!): Boolean,
+    stop(device: String!): Boolean
 }
 
 schema {

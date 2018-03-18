@@ -3,6 +3,9 @@ import * as graphqlHTTP from 'express-graphql';
 import schema from './schema';
 import { logger } from './logger';
 import * as mdns from 'mdns';
+import { installCancelableAwaiter } from './utils/cancelableAwaiter';
+
+installCancelableAwaiter();
 
 const PORT = 4000;
 

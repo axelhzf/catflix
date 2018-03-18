@@ -1,15 +1,30 @@
 import * as React from 'react';
+import { MutationFunc } from 'react-apollo/types';
 import { Text, View, StyleSheet, TouchableHighlight } from 'react-native';
+import { configHolder } from '../../config';
 import { colors } from '../../styleguide/colors';
 import { graphql, gql, compose, QueryProps } from 'react-apollo';
-import { PlayerBarQuery } from '../../schema';
+import {
+  PlayerBarPauseMutationVariables,
+  PlayerBarQuery,
+  PlayerBarResumeMutationVariables,
+  PlayerBarStopMutationVariables
+} from '../../schema';
 import { Ionicons } from '@expo/vector-icons';
+import {
+  PlayerBarResumeMutation,
+  PlayerBarStopMutation,
+  PlayerBarPauseMutation
+} from '../../schema';
 
 type Props = {
   status: QueryProps & PlayerBarQuery;
-  resume: () => void;
-  pause: () => void;
-  stop: () => void;
+  resume: MutationFunc<
+    PlayerBarResumeMutation,
+    PlayerBarResumeMutationVariables
+  >;
+  pause: MutationFunc<PlayerBarPauseMutation, PlayerBarPauseMutationVariables>;
+  stop: MutationFunc<PlayerBarStopMutation, PlayerBarStopMutationVariables>;
 };
 
 class PlayerBar extends React.Component<Props> {
@@ -21,25 +36,45 @@ class PlayerBar extends React.Component<Props> {
     const status = this.props.status.status;
     const canPause =
       status &&
-      status.server === 'PLAYING' && (status.chromecast === 'PLAYING' || status.chromecast === 'BUFFERING');
-    const canPlay = status && status.server === 'PLAYING' && status.chromecast === 'PAUSED';
+      status.server === 'PLAYING' &&
+      (status.chromecast === 'PLAYING' || status.chromecast === 'BUFFERING');
+    const canPlay =
+      status && status.server === 'PLAYING' && status.chromecast === 'PAUSED';
+    let config = configHolder.get();
     return (
       <View style={styles.container}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.device}>{this.getDeviceName()} - {this.getProgress()}</Text>
+          <Text style={styles.device}>
+            {this.getDeviceName()} - {this.getProgress()}
+          </Text>
           <Text style={styles.status}>{this.getStatusText()}</Text>
         </View>
         {canPlay && (
-          <TouchableHighlight style={{ paddingRight: 16, paddingLeft: 16 }} onPress={() => this.props.resume()}>
+          <TouchableHighlight
+            style={{ paddingRight: 16, paddingLeft: 16 }}
+            onPress={() =>
+              this.props.resume({ variables: { device: config.device } })
+            }
+          >
             <Ionicons name="ios-play" size={32} color={colors.text} />
           </TouchableHighlight>
         )}
         {canPause && (
-          <TouchableHighlight style={{ paddingRight: 16, paddingLeft: 16 }} onPress={() => this.props.pause()}>
+          <TouchableHighlight
+            style={{ paddingRight: 16, paddingLeft: 16 }}
+            onPress={() =>
+              this.props.pause({ variables: { device: config.device } })
+            }
+          >
             <Ionicons name="ios-pause" size={32} color={colors.text} />
           </TouchableHighlight>
         )}
-        <TouchableHighlight style={{ paddingRight: 16, paddingLeft: 16 }} onPress={() => this.props.stop()}>
+        <TouchableHighlight
+          style={{ paddingRight: 16, paddingLeft: 16 }}
+          onPress={() =>
+            this.props.stop({ variables: { device: config.device } })
+          }
+        >
           <Ionicons name="ios-close" size={32} color={colors.text} />
         </TouchableHighlight>
       </View>
@@ -48,17 +83,20 @@ class PlayerBar extends React.Component<Props> {
 
   getDeviceName() {
     const { status } = this.props.status;
-    if (!status) return "No device connected";
-    if (!status.device) return "No device connected";
+    if (!status) return 'No device connected';
+    if (!status.device) return 'No device connected';
     return status.device;
   }
 
   getProgress() {
     const { status } = this.props.status;
-    if (!status || !status.torrent) return "";
-    if (status.torrent.totalLength === 0) return "";
-    const currentPercentage = (status.torrent.downloaded * 100 / status.torrent.totalLength);
-    return `${currentPercentage.toFixed(2)}% ${(status.torrent.downloadSpeed / 1000).toFixed(2)}Kb/s`;
+    if (!status || !status.torrent) return '';
+    if (status.torrent.totalLength === 0) return '';
+    const currentPercentage =
+      status.torrent.downloaded * 100 / status.torrent.totalLength;
+    return `${currentPercentage.toFixed(2)}% ${(
+      status.torrent.downloadSpeed / 1000
+    ).toFixed(2)}Kb/s`;
   }
 
   getStatusText() {
@@ -70,7 +108,8 @@ class PlayerBar extends React.Component<Props> {
       case 'IDLE':
         return 'Ready';
       case 'DOWNLOADING_TORRENT': {
-        const currentPercentage = (status.torrent.downloaded * 100 / status.torrent.totalLength);
+        const currentPercentage =
+          status.torrent.downloaded * 100 / status.torrent.totalLength;
         return `Downloading torrent`;
       }
       case 'DOWNLOADING_SUBTITLE':
@@ -139,24 +178,24 @@ const enhance = compose(
   ),
   graphql(
     gql`
-      mutation PlayerBarResume {
-        resume
+      mutation PlayerBarResume($device: String!) {
+        resume(device: $device)
       }
     `,
     { name: 'resume' }
   ),
   graphql(
     gql`
-      mutation PlayerBarPause {
-        pause
+      mutation PlayerBarPause($device: String!) {
+        pause(device: $device)
       }
     `,
     { name: 'pause' }
   ),
   graphql(
     gql`
-      mutation PlayerBarStop {
-        stop
+      mutation PlayerBarStop($device: String!) {
+        stop(device: $device)
       }
     `,
     { name: 'stop' }

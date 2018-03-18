@@ -9,12 +9,14 @@ import {
 } from '../PopcornApi/PopCornShowDetails';
 import { PopCornMovie, PopCornMovieTorrent } from '../PopcornApi/PopCornMovie';
 import { Status, ServerStatus } from '../schema/schema';
+import { MediaId } from '../types/MediaId';
 
 export class Player {
   private _status: ServerStatus = 'IDLE';
   private torrentStreaming = new TorrentStreaming();
   private chromeCast = new ChromeCast();
   private subtitlesServer = new SubtitlesServer();
+  private currentLoad: Promise<void> | undefined;
 
   constructor() {}
 
@@ -28,8 +30,14 @@ export class Player {
     return status;
   }
 
-  async loadEpisode(args: LoadEpisodeArgs) {
+  async load(args: LoadMediaArgs) {
+    this.currentLoad = this.internalLoad(args);
+    return this.currentLoad;
+  }
+
+  private async internalLoad(args: LoadMediaArgs) {
     try {
+      await this.stop(args.device);
       const url = args.torrent.url;
       logger.info('streaming magnet', url);
       this._status = 'DOWNLOADING_TORRENT';
@@ -38,13 +46,7 @@ export class Player {
       let subtitlesUrl;
       if (args.subtitleLang) {
         this._status = 'DOWNLOADING_SUBTITLE';
-        subtitlesUrl = await this.subtitlesServer.serve(
-          {
-            type: 'episode',
-            imdbid: args.show.imdb_id,
-            season: args.episode.season,
-            episode: args.episode.episode
-          },
+        subtitlesUrl = await this.subtitlesServer.serve(this.getMediaId(args),
           streamingTorrent.file.length,
           args.subtitleLang
         );
@@ -53,10 +55,7 @@ export class Player {
       await this.chromeCast.load({
         url: streamingTorrent.url,
         title: streamingTorrent.file.name,
-        imageUrl:
-          args.show.images.poster ||
-          args.show.images.banner ||
-          args.show.images.fanart,
+        imageUrl: this.getImage(args),
         subtitlesUrl,
         device: args.device
       });
@@ -67,66 +66,68 @@ export class Player {
     }
   }
 
-  async loadMovie(args: LoadMovieArgs) {
-    try {
-      const url = args.torrent.url;
-      this._status = 'DOWNLOADING_TORRENT';
-      logger.info('streaming magnet', url);
-      const streamingTorrent = await this.torrentStreaming.stream(url);
-      logger.info('streaming torrent', streamingTorrent.file);
-      this._status = 'DOWNLOADING_SUBTITLE';
-      let subtitlesUrl;
-      if (args.subtitleLang) {
-        subtitlesUrl = await this.subtitlesServer.serve(
-          { type: 'movie', imdbid: args.movie.imdb_id },
-          streamingTorrent.file.length,
-          args.subtitleLang
-        );
-      }
-      this._status = 'LAUNCHING_CHROMECAST';
-      await this.chromeCast.load({
-        url: streamingTorrent.url,
-        title: streamingTorrent.file.name,
-        subtitlesUrl,
-        imageUrl:
-          args.movie.images.poster ||
-          args.movie.images.banner ||
-          args.movie.images.fanart,
-        device: args.device
-      });
-      this._status = 'PLAYING';
-    } catch (e) {
-      logger.error(e);
-      this._status = 'ERROR';
+  private getMediaId(args: LoadMediaArgs): MediaId {
+    if (args.type === 'movie') {
+      return {
+        type: 'movie',
+        imdbid: args.movie.imdb_id
+      };
     }
+    return {
+      type: 'episode',
+      imdbid: args.show.imdb_id,
+      season: args.episode.season,
+      episode: args.episode.episode
+    };
   }
 
-  pause() {
-    return this.chromeCast.pause();
+  private getImage(args: LoadMediaArgs): string | undefined {
+    if (args.type === 'movie') {
+      return args.movie.images.poster ||
+      args.movie.images.banner ||
+      args.movie.images.fanart;
+    }
+    return args.show.images.poster ||
+    args.show.images.banner ||
+    args.show.images.fanart;
   }
 
-  play() {
-    return this.chromeCast.play();
+  pause(device: string) {
+    return this.chromeCast.pause(device);
   }
 
-  async stop() {
-    await this.chromeCast.stop();
+  play(device: string) {
+    return this.chromeCast.play(device);
+  }
+
+  async stop(device: string) {
+    logger.info('stopping player');
+    if (this.currentLoad) {
+      logger.info('loading in progress, canceling...');
+      this.currentLoad.cancel();
+      logger.info('current load canceled');
+    }
+    await this.chromeCast.stop(device);
     await this.subtitlesServer.destroy();
     await this.torrentStreaming.destroy();
   }
 }
 
+type LoadMediaArgs = LoadEpisodeArgs | LoadMovieArgs;
+
 type LoadEpisodeArgs = {
+  type: 'episode';
   show: PopCornShow;
   episode: PopCornShowEpisode;
   torrent: PopCornShowDetailsTorrent;
   subtitleLang?: string;
-  device?: string;
+  device: string;
 };
 
 type LoadMovieArgs = {
+  type: 'movie';
   movie: PopCornMovie;
   torrent: PopCornMovieTorrent;
-  subtitleLang: string | undefined;
-  device: string | undefined;
+  subtitleLang?: string;
+  device: string;
 };
