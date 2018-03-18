@@ -31,13 +31,13 @@ export class Player {
   }
 
   async load(args: LoadMediaArgs) {
+    await this.stop(args.device);
     this.currentLoad = this.internalLoad(args);
     return this.currentLoad;
   }
 
   private async internalLoad(args: LoadMediaArgs) {
     try {
-      await this.stop(args.device);
       const url = args.torrent.url;
       logger.info('streaming magnet', url);
       this._status = 'DOWNLOADING_TORRENT';
@@ -46,10 +46,16 @@ export class Player {
       let subtitlesUrl;
       if (args.subtitleLang) {
         this._status = 'DOWNLOADING_SUBTITLE';
-        subtitlesUrl = await this.subtitlesServer.serve(this.getMediaId(args),
-          streamingTorrent.file.length,
-          args.subtitleLang
-        );
+        [subtitlesUrl] = await Promise.all([
+          this.subtitlesServer.serve(
+            this.getMediaId(args),
+            streamingTorrent.file.length,
+            args.subtitleLang
+          ),
+          this.torrentStreaming.waitForInitialDownload()
+        ]);
+      } else {
+        await this.torrentStreaming.waitForInitialDownload();
       }
       this._status = 'LAUNCHING_CHROMECAST';
       await this.chromeCast.load({
@@ -83,13 +89,17 @@ export class Player {
 
   private getImage(args: LoadMediaArgs): string | undefined {
     if (args.type === 'movie') {
-      return args.movie.images.poster ||
-      args.movie.images.banner ||
-      args.movie.images.fanart;
+      return (
+        args.movie.images.poster ||
+        args.movie.images.banner ||
+        args.movie.images.fanart
+      );
     }
-    return args.show.images.poster ||
-    args.show.images.banner ||
-    args.show.images.fanart;
+    return (
+      args.show.images.poster ||
+      args.show.images.banner ||
+      args.show.images.fanart
+    );
   }
 
   pause(device: string) {

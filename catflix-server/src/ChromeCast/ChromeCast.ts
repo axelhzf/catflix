@@ -103,7 +103,8 @@ export class ChromeCast {
   }
 
   async load(args: PlayArgs) {
-    const loadingInOtherDevice = args.device && args.device !== this.getDeviceName();
+    const loadingInOtherDevice =
+      args.device && args.device !== this.getDeviceName();
     if (!this.player || loadingInOtherDevice) {
       await this.init(args.device);
     }
@@ -194,9 +195,7 @@ export class ChromeCast {
   }
 }
 
-type PlayerState =
-  'IDLE' |
-  'PLAYING';
+type PlayerState = 'IDLE' | 'PLAYING';
 
 type PlayArgs = {
   url: string;

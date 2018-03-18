@@ -19,7 +19,6 @@ export class TorrentStreaming {
     await this.destroy();
     logger.info('starting torrent server');
     this.engine = await this.startEngine(url);
-    await this.waitForInitialDownload();
 
     const ip = await internalIp();
     const file = this.engine.server.index;
@@ -33,7 +32,7 @@ export class TorrentStreaming {
     };
   }
 
-  private async waitForInitialDownload() {
+  async waitForInitialDownload() {
     const INITIAL_PERCENTAGE = 1;
     let initialDownloadFinished = false;
     while (!initialDownloadFinished) {
@@ -46,7 +45,7 @@ export class TorrentStreaming {
       );
       initialDownloadFinished = currentPercentage >= INITIAL_PERCENTAGE;
       if (!initialDownloadFinished) {
-        await this.wait(500);
+        await this.wait(200);
       }
     }
   }

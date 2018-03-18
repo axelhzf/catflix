@@ -22,12 +22,16 @@ const OpenSubtitles = new OS({
   ssl: true
 });
 
-type SubtitlesHttpServer = Server & { destroy?: (cb: () => void) => void }
+type SubtitlesHttpServer = Server & { destroy?: (cb: () => void) => void };
 
 export class SubtitlesServer {
-  private server: SubtitlesHttpServer |  undefined;
+  private server: SubtitlesHttpServer | undefined;
 
-  async serve(mediaId: MediaId, length: number, lang: string): Promise<string | undefined> {
+  async serve(
+    mediaId: MediaId,
+    length: number,
+    lang: string
+  ): Promise<string | undefined> {
     try {
       logger.info('downloading subtitles for', mediaId);
       const subtitle = await this.findSubtitle(mediaId, length, lang);
@@ -52,7 +56,10 @@ export class SubtitlesServer {
     }
   }
 
-  private startServer(vttSubtitles: any, encoding: string): Promise<SubtitlesHttpServer> {
+  private startServer(
+    vttSubtitles: any,
+    encoding: string
+  ): Promise<SubtitlesHttpServer> {
     return new Promise(resolve => {
       this.server = http.createServer((req, res) => {
         logger.info('incoming subtitles request');
@@ -89,7 +96,7 @@ export class SubtitlesServer {
       limit: 'best',
       imdbid: id.imdbid,
       filesize: length,
-      gzip: false,
+      gzip: false
     } as any;
     if (id.type === 'episode') {
       args.season = id.season;
