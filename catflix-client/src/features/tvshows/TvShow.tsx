@@ -10,10 +10,11 @@ import {
 } from 'react-native';
 import { playEpisodeMutationVariables, ShowQuery } from '../../schema';
 import { configHolder } from '../../config';
-import { ModalClose } from '../../styleguide/ModalClose';
+import { BackButton } from '../../styleguide/BackButton';
 import { Loading } from '../../styleguide/Loading';
 import { Error } from '../../styleguide/Error';
 import { colors } from '../../styleguide/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   navigation: any;
@@ -27,8 +28,10 @@ class TvShow extends React.Component<ChildProps<Props, ShowQuery>> {
 
   static navigationOptions = ({ navigation, data }) => ({
     title: 'Tv Show',
-    headerLeft: null,
-    headerRight: <ModalClose navigation={navigation} />
+    headerLeft: <BackButton navigation={navigation} />,
+    tabBarIcon: ({ focused, tintColor }) => {
+      return <Ionicons name="ios-desktop" size={25} color={tintColor} />;
+    }
   });
 
   handleSelectEpisode = async (show: Show, episode: Episode) => {
@@ -42,6 +45,7 @@ class TvShow extends React.Component<ChildProps<Props, ShowQuery>> {
       device: config.device
     };
     await this.props.mutate({ variables });
+    this.props.navigation.navigate('NowPlaying');
   };
 
   getEpisodeId(episode: Episode) {

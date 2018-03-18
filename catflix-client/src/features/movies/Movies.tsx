@@ -3,17 +3,14 @@ import { ChildProps, gql, graphql, compose } from 'react-apollo';
 import {
   Dimensions,
   FlatList,
-  Image,
   StyleSheet,
-  Text,
-  TouchableHighlight,
-  View
 } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { MoviesQuery, playMovieMutationVariables } from '../../schema';
 import { configHolder } from '../../config';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../styleguide/colors';
+import { CoverCell } from '../../styleguide/CoverCell';
 import { Loading } from '../../styleguide/Loading';
 import { Error } from '../../styleguide/Error';
 
@@ -35,7 +32,6 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
   });
 
   handleSelectMovie = async (movie: Movie) => {
-    /*
     let config = configHolder.get();
     const variables: playMovieMutationVariables = {
       id: movie.id,
@@ -44,7 +40,6 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
       device: config.device
     };
     await this.props.mutate({ variables });
-    */
     this.props.navigation.navigate('NowPlaying');
   };
 
@@ -66,21 +61,12 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
         data={movies}
         numColumns={columns}
         renderItem={({ item }: { item: Movie }) => (
-          <TouchableHighlight
+          <CoverCell
+            title={item.title}
+            image={item.images.poster}
             key={item.id}
             onPress={() => this.handleSelectMovie(item)}
-          >
-            <View style={styles.cell}>
-              <Image
-                style={styles.image}
-                source={{ uri: item.images.poster }}
-                resizeMode="cover"
-              />
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>{item.title}</Text>
-              </View>
-            </View>
-          </TouchableHighlight>
+          />
         )}
       />
     );

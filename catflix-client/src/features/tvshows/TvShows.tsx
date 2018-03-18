@@ -1,50 +1,44 @@
+import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { ChildProps, gql, graphql, compose } from 'react-apollo';
-import {
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View
-} from 'react-native';
+import { ChildProps, compose, gql, graphql } from 'react-apollo';
+import { FlatList, StyleSheet } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { ShowsQuery } from '../../schema';
-import TvShow from './TvShow'
-import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../styleguide/colors';
+import { CoverCell } from '../../styleguide/CoverCell';
+import { Error } from '../../styleguide/Error';
+import { Loading } from '../../styleguide/Loading';
+import TvShow from './TvShow';
 
 type Props = NavigationInjectedProps;
 
 type Show = ShowsQuery['shows'][0];
 
-const { width } = Dimensions.get('window');
 const columns = 3;
-const columnWidth = width / columns;
 
 class TvShows extends React.Component<ChildProps<Props, ShowsQuery>> {
-
   static navigationOptions = ({ navigation }) => ({
     title: 'TV Shows',
     tabBarIcon: ({ focused, tintColor }) => {
-      return <Ionicons name='ios-desktop' size={25} color={tintColor}/>;
+      return <Ionicons name="ios-desktop" size={25} color={tintColor} />;
     }
   });
 
   handleSelectShow = async (show: Show) => {
-    //this.props.navigation.push('TvShow', { showId: show.id});
-    this.props.navigation.push('NowPlaying');
+    this.props.navigation.push('TvShow', { showId: show.id });
   };
 
   render() {
-    if (this.props.data === undefined || this.props.data.loading) {
-      return <Text>Loading</Text>;
-    }
-    if (this.props.data.error) {
-      return <Text>Error {JSON.stringify(this.props.data.error)}</Text>;
-    }
+    if (this.props.data.loading) return <Loading />;
+    if (this.props.data.error)
+      return (
+        <Error
+          message={this.props.data.error.message}
+          onPressTryAgain={() => this.props.data.refetch().catch(() => null)}
+        />
+      );
     const shows = this.props.data.shows;
-    
+
     return (
       <FlatList
         style={styles.container}
@@ -52,15 +46,12 @@ class TvShows extends React.Component<ChildProps<Props, ShowsQuery>> {
         data={shows}
         numColumns={columns}
         renderItem={({ item }: { item: Show }) => (
-          <TouchableHighlight
+          <CoverCell
+            title={item.title}
+            image={item.images.poster}
             key={item.id}
             onPress={() => this.handleSelectShow(item)}
-          >
-            <View style={styles.cell}>
-              <Image style={styles.image} source={{ uri: item.images.poster }} resizeMode="cover" />
-              <Text style={styles.title}>{item.title}</Text>
-            </View>
-          </TouchableHighlight>
+          />
         )}
       />
     );
@@ -70,22 +61,7 @@ class TvShows extends React.Component<ChildProps<Props, ShowsQuery>> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 64
-  },
-  cell: {
-    width: columnWidth,
-    height: 190,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    borderBottomColor: '#ccc',
-  },
-  image: {
-    width: columnWidth,
-    height: 150
-  },
-  title: {
-    textAlign: 'center'
+    backgroundColor: colors.gray4
   }
 });
 

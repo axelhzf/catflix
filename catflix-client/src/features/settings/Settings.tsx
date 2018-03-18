@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView
 } from 'react-native';
+import { NavigationInjectedProps } from 'react-navigation';
 import { Config, configHolder } from '../../config';
 import { Ionicons } from '@expo/vector-icons';
 import { compose } from 'redux';
@@ -16,7 +17,7 @@ import { ModalClose } from '../../styleguide/ModalClose';
 
 type Props = {
   devices: QueryProps & DevicesQuery;
-};
+} & NavigationInjectedProps;
 type State = Config;
 
 export class Settings extends React.Component<Props, State> {
@@ -35,7 +36,16 @@ export class Settings extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.props.devices.startPolling(5000);
+    this.props.navigation.addListener('willFocus', () => {
+      this.props.devices.startPolling(5000);
+    });
+    this.props.navigation.addListener('willBlur', () => {
+      this.props.devices.stopPolling();
+    });
+  }
+
+  componentWillUnmount() {
+    console.log('unmount settings');
   }
 
   render() {

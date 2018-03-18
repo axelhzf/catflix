@@ -87,6 +87,5 @@ export const RootTabNavigator = StackNavigator(
   {
     mode: 'modal',
     headerMode: 'none',
-
   }
 );

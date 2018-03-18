@@ -34,7 +34,7 @@ class NowPlaying extends React.Component<Props> {
   });
 
   componentDidMount() {
-    this.props.status.startPolling(1000);
+    this.props.status.startPolling(500);
   }
 
   render() {
@@ -46,7 +46,6 @@ class NowPlaying extends React.Component<Props> {
     const canPlay =
       status && status.server === 'PLAYING' && status.chromecast === 'PAUSED';
     let config = configHolder.get();
-    const progress = this.getProgress();
     return (
       <View style={styles.container}>
         <Text style={styles.status}>{this.getStatusText()}</Text>
