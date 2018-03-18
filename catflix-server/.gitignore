@@ -3,6 +3,4 @@ node_modules
 *.iml
 dist
 yarn-error.log
-src/schema/schema.json
-src/schema/schema.ts
 .env
