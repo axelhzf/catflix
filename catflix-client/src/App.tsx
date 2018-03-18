@@ -4,14 +4,13 @@ import {
   createNetworkInterface,
   ApolloProvider
 } from 'react-apollo';
-import Router from './features/router/Router';
+import { RootTabNavigator } from './features/router/Router';
 import { configHolder } from './config';
 import { StatusBar, View } from 'react-native';
-import PlayerBar from './features/player/PlayerBar';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
-    uri: 'http://192.168.1.40:4000/graphql'
+    uri: 'http://192.168.1.39:4000/graphql'
   })
 });
 
@@ -35,8 +34,7 @@ export default class App extends React.Component<{}, State> {
       <ApolloProvider client={client}>
         <View style={{flex: 1}}>
           <StatusBar barStyle="light-content"/>
-          <Router/>
-          <PlayerBar/>
+          <RootTabNavigator/>
         </View>
       </ApolloProvider>
     );

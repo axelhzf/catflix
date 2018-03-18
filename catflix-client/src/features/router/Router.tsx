@@ -1,34 +1,92 @@
 import * as React from 'react';
-import Home from '../home/Home';
-import { StackNavigator } from 'react-navigation';
-import { colors } from '../../styleguide/colors';
-import { View } from 'react-native';
+import { TabNavigator, StackNavigator } from 'react-navigation';
 import { Ionicons } from '@expo/vector-icons';
+import Movies from '../movies/Movies';
+import NowPlaying from '../NowPlaying/NowPlaying';
 import Settings from '../settings/Settings';
 import TvShow from '../tvshows/TvShow';
+import TvShows from '../tvshows/TvShows';
+import { colors } from '../../styleguide/colors';
 
+const navigationOptions = {
+  headerStyle: {
+    backgroundColor: colors.headerBg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border
+  },
+  headerTitleStyle: { color: colors.accent }
+};
 
-export default StackNavigator(
+const MoviesNavigator = StackNavigator(
   {
-    Home: {
-      screen: Home
-    },
-    Settings: {
-      screen: Settings,
+    Movies: {
+      screen: Movies
+    }
+  },
+  { navigationOptions }
+);
+
+const TvShowsNavigator = StackNavigator(
+  {
+    TvShows: {
+      screen: TvShows
     },
     TvShow: {
       screen: TvShow
     }
   },
+  { navigationOptions }
+);
+
+const SettingsNavigator = StackNavigator(
+  {
+    Settings: {
+      screen: Settings
+    }
+  },
+  { navigationOptions }
+);
+
+const MainNavigator = TabNavigator(
+  {
+    Movies: {
+      screen: MoviesNavigator
+    },
+    TvShows: {
+      screen: TvShowsNavigator
+    },
+    Settings: {
+      screen: SettingsNavigator
+    }
+  },
+  {
+    tabBarOptions: {
+      activeBackgroundColor: colors.bg,
+      inactiveBackgroundColor: colors.bg,
+      activeTintColor: colors.accent,
+      inactiveTintColor: 'gray'
+    }
+  }
+);
+
+const NowPlayingNavigator = StackNavigator({
+  NowPlaying: {
+    screen: NowPlaying
+  }
+}, { navigationOptions });
+
+export const RootTabNavigator = StackNavigator(
+  {
+    Main: {
+      screen: MainNavigator
+    },
+    NowPlaying: {
+      screen: NowPlayingNavigator
+    }
+  },
   {
     mode: 'modal',
-    navigationOptions: {
-      headerStyle: {
-        backgroundColor: colors.headerBg,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border
-      },
-      headerTitleStyle: { color: colors.accent }
-    }
+    headerMode: 'none',
+
   }
 );

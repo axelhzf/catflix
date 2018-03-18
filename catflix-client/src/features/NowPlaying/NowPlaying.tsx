@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { MutationFunc } from 'react-apollo/types';
 import { Text, View, StyleSheet, TouchableHighlight } from 'react-native';
+import { NavigationInjectedProps } from 'react-navigation';
 import { configHolder } from '../../config';
 import { colors } from '../../styleguide/colors';
 import { graphql, gql, compose, QueryProps } from 'react-apollo';
@@ -25,9 +26,13 @@ type Props = {
   >;
   pause: MutationFunc<PlayerBarPauseMutation, PlayerBarPauseMutationVariables>;
   stop: MutationFunc<PlayerBarStopMutation, PlayerBarStopMutationVariables>;
-};
+} & NavigationInjectedProps;
 
-class PlayerBar extends React.Component<Props> {
+class NowPlaying extends React.Component<Props> {
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Now Playing'
+  });
+
   componentDidMount() {
     this.props.status.startPolling(1000);
   }
@@ -41,45 +46,49 @@ class PlayerBar extends React.Component<Props> {
     const canPlay =
       status && status.server === 'PLAYING' && status.chromecast === 'PAUSED';
     let config = configHolder.get();
+    const progress = this.getProgress();
     return (
       <View style={styles.container}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.device}>
-            {this.getDeviceName()} - {this.getProgress()}
-          </Text>
-          <Text style={styles.status}>{this.getStatusText()}</Text>
+        <Text style={styles.status}>{this.getStatusText()}</Text>
+        <Text style={styles.device}>{this.getDeviceName()}</Text>
+        <Text style={styles.progress}>{this.getProgress()}</Text>
+        <View style={styles.buttons}>
+          {canPlay && (
+            <TouchableHighlight
+              style={{ paddingRight: 16, paddingLeft: 16 }}
+              onPress={() =>
+                this.props.resume({ variables: { device: config.device } })
+              }
+            >
+              <Ionicons name="ios-play" size={64} color={colors.text} />
+            </TouchableHighlight>
+          )}
+          {canPause && (
+            <TouchableHighlight
+              style={{ paddingRight: 16, paddingLeft: 16 }}
+              onPress={() =>
+                this.props.pause({ variables: { device: config.device } })
+              }
+            >
+              <Ionicons name="ios-pause" size={64} color={colors.text} />
+            </TouchableHighlight>
+          )}
+          <TouchableHighlight
+            style={{ paddingRight: 16, paddingLeft: 16 }}
+            onPress={this.handleClose}
+          >
+            <Ionicons name="ios-close" size={64} color={colors.text} />
+          </TouchableHighlight>
         </View>
-        {canPlay && (
-          <TouchableHighlight
-            style={{ paddingRight: 16, paddingLeft: 16 }}
-            onPress={() =>
-              this.props.resume({ variables: { device: config.device } })
-            }
-          >
-            <Ionicons name="ios-play" size={32} color={colors.text} />
-          </TouchableHighlight>
-        )}
-        {canPause && (
-          <TouchableHighlight
-            style={{ paddingRight: 16, paddingLeft: 16 }}
-            onPress={() =>
-              this.props.pause({ variables: { device: config.device } })
-            }
-          >
-            <Ionicons name="ios-pause" size={32} color={colors.text} />
-          </TouchableHighlight>
-        )}
-        <TouchableHighlight
-          style={{ paddingRight: 16, paddingLeft: 16 }}
-          onPress={() =>
-            this.props.stop({ variables: { device: config.device } })
-          }
-        >
-          <Ionicons name="ios-close" size={32} color={colors.text} />
-        </TouchableHighlight>
       </View>
     );
   }
+
+  handleClose = async () => {
+    //const config = configHolder.get();
+    //await this.props.stop({ variables: { device: config.device } });
+    this.props.navigation.goBack(null);
+  };
 
   getDeviceName() {
     const { status } = this.props.status;
@@ -90,8 +99,8 @@ class PlayerBar extends React.Component<Props> {
 
   getProgress() {
     const { status } = this.props.status;
-    if (!status || !status.torrent) return '';
-    if (status.torrent.totalLength === 0) return '';
+    if (!status || !status.torrent) return;
+    if (status.torrent.totalLength === 0) return;
     const currentPercentage =
       status.torrent.downloaded * 100 / status.torrent.totalLength;
     return `${currentPercentage.toFixed(2)}% ${(
@@ -138,23 +147,32 @@ class PlayerBar extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    height: 55,
+    flex: 1,
     backgroundColor: colors.headerBg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: 8,
-    paddingRight: 8,
-    flexDirection: 'row'
+    flexDirection: 'column'
   },
   status: {
     color: colors.text,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginBottom: 7
   },
   device: {
     color: colors.text,
-    fontSize: 12
+    fontSize: 16,
+    marginBottom: 7
+  },
+  progress: {
+    color: colors.text,
+    fontSize: 16,
+    marginBottom: 7
+  },
+  buttons: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row'
   }
 });
 
@@ -202,4 +220,4 @@ const enhance = compose(
   )
 );
 
-export default enhance(PlayerBar as any);
+export default enhance(NowPlaying as any);

@@ -23,8 +23,9 @@ export class Settings extends React.Component<Props, State> {
 
   static navigationOptions = ({ navigation }) => ({
     title: 'Settings',
-    headerLeft: null,
-    headerRight: <ModalClose navigation={navigation} />
+    tabBarIcon: ({ focused, tintColor }) => {
+      return <Ionicons name='ios-cog' size={25} color={tintColor}/>;
+    }
   });
 
   state = configHolder.get();

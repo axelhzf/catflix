@@ -9,10 +9,15 @@ import {
   TouchableHighlight,
   View
 } from 'react-native';
+import { NavigationInjectedProps } from 'react-navigation';
 import { MoviesQuery, playMovieMutationVariables } from '../../schema';
 import { configHolder } from '../../config';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../styleguide/colors';
+import { Loading } from '../../styleguide/Loading';
+import { Error } from '../../styleguide/Error';
 
-type Props = {};
+type Props = NavigationInjectedProps;
 
 type Movie = MoviesQuery['movies'][0];
 
@@ -21,7 +26,16 @@ const columns = 3;
 const columnWidth = width / columns;
 
 class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
+
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Movies',
+    tabBarIcon: ({ focused, tintColor }) => {
+      return <Ionicons name='ios-film' size={25} color={tintColor}/>;
+    }
+  });
+
   handleSelectMovie = async (movie: Movie) => {
+    /*
     let config = configHolder.get();
     const variables: playMovieMutationVariables = {
       id: movie.id,
@@ -30,15 +44,20 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
       device: config.device
     };
     await this.props.mutate({ variables });
+    */
+    this.props.navigation.navigate('NowPlaying');
   };
 
   render() {
-    if (this.props.data === undefined || this.props.data.loading) {
-      return <Text>Loading</Text>;
-    }
-    if (this.props.data.error) {
-      return <Text>Error {JSON.stringify(this.props.data.error)}</Text>;
-    }
+    if (this.props.data.loading) return <Loading />;
+    if (this.props.data.error)
+      return (
+        <Error
+          message={this.props.data.error.message}
+          onPressTryAgain={() => this.props.data.refetch().catch(() => null)}
+        />
+      );
+
     const movies = this.props.data.movies;
     return (
       <FlatList
@@ -57,7 +76,9 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
                 source={{ uri: item.images.poster }}
                 resizeMode="cover"
               />
-              <Text style={styles.title}>{item.title}</Text>
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>{item.title}</Text>
+              </View>
             </View>
           </TouchableHighlight>
         )}
@@ -69,8 +90,7 @@ class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
-    paddingTop: 64
+    backgroundColor: colors.gray4
   },
   cell: {
     width: columnWidth,
@@ -83,7 +103,14 @@ const styles = StyleSheet.create({
     width: columnWidth,
     height: 150
   },
+  titleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40
+  },
   title: {
+    fontSize: 12,
+    color: colors.text,
     textAlign: 'center'
   }
 });

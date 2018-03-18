@@ -3,18 +3,18 @@ import { ChildProps, gql, graphql, compose } from 'react-apollo';
 import {
   Dimensions,
   FlatList,
-  Image, NavigationIOS,
+  Image,
   StyleSheet,
   Text,
   TouchableHighlight,
   View
 } from 'react-native';
+import { NavigationInjectedProps } from 'react-navigation';
 import { ShowsQuery } from '../../schema';
 import TvShow from './TvShow'
+import { Ionicons } from '@expo/vector-icons';
 
-type Props = {
-  navigator: NavigationIOS
-};
+type Props = NavigationInjectedProps;
 
 type Show = ShowsQuery['shows'][0];
 
@@ -23,12 +23,17 @@ const columns = 3;
 const columnWidth = width / columns;
 
 class TvShows extends React.Component<ChildProps<Props, ShowsQuery>> {
+
+  static navigationOptions = ({ navigation }) => ({
+    title: 'TV Shows',
+    tabBarIcon: ({ focused, tintColor }) => {
+      return <Ionicons name='ios-desktop' size={25} color={tintColor}/>;
+    }
+  });
+
   handleSelectShow = async (show: Show) => {
-    this.props.navigator.push({
-      component: TvShow,
-      passProps: { showId: show.id },
-      title: show.title
-    })
+    //this.props.navigation.push('TvShow', { showId: show.id});
+    this.props.navigation.push('NowPlaying');
   };
 
   render() {

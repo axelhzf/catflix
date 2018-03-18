@@ -193,6 +193,32 @@ export class ChromeCast {
     }
     return media;
   }
+
+  async showMessage(args: { device: string, message: string }) {
+    const loadingInOtherDevice =
+      args.device && args.device !== this.getDeviceName();
+    if (!this.player || loadingInOtherDevice) {
+      await this.init(args.device);
+    }
+    const media = {
+      contentId: 'http://google.com',
+      contentType: 'text/html',
+      streamType: 'BUFFERED',
+      // Title and cover displayed while buffering
+      metadata: {
+        type: 0,
+        metadataType: 0,
+        title: args.message,
+        images: [
+          { url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg' }
+        ]
+      }
+    };
+    logger.info('loading player', JSON.stringify(media));
+    const status = await this.player.loadAsync(media, { autoplay: false });
+    logger.info('player loaded');
+    return status;
+  }
 }
 
 type PlayerState = 'IDLE' | 'PLAYING';
