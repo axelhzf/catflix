@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { MutationFunc } from 'react-apollo/types';
-import { Text, View, StyleSheet, TouchableHighlight } from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableHighlight,
+  Image
+} from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { configHolder } from '../../config';
 import { colors } from '../../styleguide/colors';
@@ -48,6 +54,9 @@ class NowPlaying extends React.Component<Props> {
     let config = configHolder.get();
     return (
       <View style={styles.container}>
+        {status && !!status.filename && (
+            <Text style={styles.status}>{status.filename}</Text>
+          )}
         <Text style={styles.status}>{this.getStatusText()}</Text>
         <Text style={styles.device}>{this.getDeviceName()}</Text>
         <Text style={styles.progress}>{this.getProgress()}</Text>
@@ -180,6 +189,8 @@ const enhance = compose(
     gql`
       query PlayerBar {
         status {
+          filename
+          image
           server
           chromecast
           device

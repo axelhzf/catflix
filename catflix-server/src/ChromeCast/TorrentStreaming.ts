@@ -32,6 +32,12 @@ export class TorrentStreaming {
     };
   }
 
+  getFilename() {
+    if (this.engine && this.engine.server)  {
+      return this.engine.server.index.path;
+    }
+  }
+
   async waitForInitialDownload() {
     const INITIAL_PERCENTAGE = 1;
     let initialDownloadFinished = false;

@@ -20,60 +20,10 @@ export enum ChromecastStatus {
 }
 
 
-export type HomeQuery = {
-  movies:  Array< {
-    id: string | null,
-    title: string,
-    images:  {
-      poster: string | null,
-    } | null,
-  } | null > | null,
-  shows:  Array< {
-    id: string | null,
-    title: string | null,
-    images:  {
-      poster: string | null,
-    } | null,
-  } | null > | null,
-};
-
-export type HomePlayMovieMutationVariables = {
-  id: string,
-  quality?: string | null,
-  subtitleLang?: string | null,
-  device: string,
-};
-
-export type HomePlayMovieMutation = {
-  playMovie: boolean | null,
-};
-
-export type MoviesQuery = {
-  movies:  Array< {
-    id: string | null,
-    title: string,
-    synopsis: string,
-    images:  {
-      banner: string | null,
-      fanart: string | null,
-      poster: string | null,
-    } | null,
-  } | null > | null,
-};
-
-export type playMovieMutationVariables = {
-  id: string,
-  quality?: string | null,
-  subtitleLang?: string | null,
-  device: string,
-};
-
-export type playMovieMutation = {
-  playMovie: boolean | null,
-};
-
 export type PlayerBarQuery = {
   status:  {
+    filename: string,
+    image: string | null,
     server: ServerStatus | null,
     chromecast: ChromecastStatus | null,
     device: string | null,
@@ -107,6 +57,30 @@ export type PlayerBarStopMutationVariables = {
 
 export type PlayerBarStopMutation = {
   stop: boolean | null,
+};
+
+export type MoviesQuery = {
+  movies:  Array< {
+    id: string | null,
+    title: string,
+    synopsis: string,
+    images:  {
+      banner: string | null,
+      fanart: string | null,
+      poster: string | null,
+    } | null,
+  } | null > | null,
+};
+
+export type playMovieMutationVariables = {
+  id: string,
+  quality?: string | null,
+  subtitleLang?: string | null,
+  device: string,
+};
+
+export type playMovieMutation = {
+  playMovie: boolean | null,
 };
 
 export type DevicesQuery = {

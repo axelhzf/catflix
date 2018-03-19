@@ -69,6 +69,8 @@ type TorrentStatus {
 }
 
 type Status {
+    filename: String!
+    image: String
     server: ServerStatus,
     chromecast: ChromecastStatus,
     torrent: TorrentStatus

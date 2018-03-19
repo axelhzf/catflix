@@ -10,7 +10,7 @@ import { StatusBar, View } from 'react-native';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
-    uri: 'http://192.168.1.39:4000/graphql'
+    uri: 'http://192.168.1.37:4000/graphql'
   })
 });
 

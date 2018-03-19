@@ -16,12 +16,15 @@ export class Player {
   private torrentStreaming = new TorrentStreaming();
   private chromeCast = new ChromeCast();
   private subtitlesServer = new SubtitlesServer();
+  private currentLoadArgs: LoadMediaArgs | undefined;
   private currentLoad: Promise<void> | undefined;
 
   constructor() {}
 
   getStatus(): Status {
     const status = {
+      filename: this.torrentStreaming.getFilename() || '',
+      cover: this.currentLoadArgs ? this.getImage(this.currentLoadArgs): undefined,
       server: this._status,
       chromecast: this.chromeCast.playerState,
       device: this.chromeCast.getDeviceName(),
