@@ -10,11 +10,12 @@ import {
 import { PopCornMovie, PopCornMovieTorrent } from '../popcornApi/PopCornMovie';
 import { Status, ServerStatus } from '../schema/schema';
 import { MediaId } from '../types/MediaId';
+import {DLNA} from "../dlna/dlna";
 
 export class Player {
   private _status: ServerStatus = 'IDLE';
   private torrentStreaming = new TorrentStreaming();
-  private chromeCast = new ChromeCast();
+  private dlna = new DLNA();
   private subtitlesServer = new SubtitlesServer();
   private currentLoadArgs: LoadMediaArgs | undefined;
   private currentLoad: Promise<void> | undefined;
@@ -28,8 +29,8 @@ export class Player {
         ? this.getImage(this.currentLoadArgs)
         : undefined,
       server: this._status,
-      chromecast: this.chromeCast.playerState,
-      device: this.chromeCast.getDeviceName(),
+      chromecast: undefined,
+      device: 'DLNA',
       torrent: this.torrentStreaming.getStats()
     };
     return status;
@@ -63,7 +64,7 @@ export class Player {
         await this.torrentStreaming.waitForInitialDownload();
       }
       this._status = 'LAUNCHING_CHROMECAST';
-      await this.chromeCast.load({
+      await this.dlna.load({
         url: streamingTorrent.url,
         title: streamingTorrent.file.name,
         imageUrl: this.getImage(args),
@@ -108,11 +109,11 @@ export class Player {
   }
 
   pause(device: string) {
-    return this.chromeCast.pause(device);
+    //return this.chromeCast.pause(device);
   }
 
   play(device: string) {
-    return this.chromeCast.play(device);
+    //return this.chromeCast.play(device);
   }
 
   async stop(device: string) {
@@ -123,7 +124,7 @@ export class Player {
       logger.info('current load canceled');
     }
     logger.info('stopping chromecast', device);
-    await this.chromeCast.stop(device);
+    //await this.chromeCast.stop(device);
     logger.info('stopped chromecast');
     logger.info('stopping subtitles server');
     await this.subtitlesServer.destroy();
