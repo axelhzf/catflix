@@ -33,7 +33,7 @@ export class TorrentStreaming {
   }
 
   getFilename() {
-    if (this.engine && this.engine.server)  {
+    if (this.engine && this.engine.server) {
       return this.engine.server.index.path;
     }
   }

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { addErrorLoggingToSchema, makeExecutableSchema } from 'graphql-tools';
 import { logger } from './logger';
-import resolver from './resolver';
+import { rootResolver } from './resolvers/rootResolver';
 
 // TODO copy graphql file
 const schemaContent = readFileSync(
@@ -11,7 +11,7 @@ const schemaContent = readFileSync(
 const schemaLogger = { log: e => logger.error(e) };
 const schema = makeExecutableSchema({
   typeDefs: schemaContent,
-  resolvers: resolver as any
+  resolvers: rootResolver as any
 });
 addErrorLoggingToSchema(schema, schemaLogger);
 export default schema;

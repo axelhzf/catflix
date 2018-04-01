@@ -194,7 +194,7 @@ export class ChromeCast {
     return media;
   }
 
-  async showMessage(args: { device: string, message: string }) {
+  async showMessage(args: { device: string; message: string }) {
     const loadingInOtherDevice =
       args.device && args.device !== this.getDeviceName();
     if (!this.player || loadingInOtherDevice) {
@@ -210,7 +210,10 @@ export class ChromeCast {
         metadataType: 0,
         title: args.message,
         images: [
-          { url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg' }
+          {
+            url:
+              'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg'
+          }
         ]
       }
     };

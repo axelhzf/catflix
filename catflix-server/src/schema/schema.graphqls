@@ -83,10 +83,19 @@ type Device {
     port: Int!
 }
 
+enum SortOptions {
+    name
+    rating
+    released
+    trending
+    updated
+    year
+}
+
 type Query {
-    movies(page: Int) : [Movie]
+    movies(page: Int, sort: SortOptions, order: Int, keywords: String, genre: String) : [Movie]
     movie(id: String!): Movie
-    shows(page: Int): [Show]
+    shows(page: Int, sort: SortOptions, order: Int, keywords: String, genre: String): [Show]
     show(id: String!): Show
     status: Status
     devices: [Device]

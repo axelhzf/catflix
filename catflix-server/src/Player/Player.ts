@@ -2,12 +2,12 @@ import { logger } from '../logger';
 import { TorrentStreaming } from '../ChromeCast/TorrentStreaming';
 import { ChromeCast } from '../ChromeCast/ChromeCast';
 import { SubtitlesServer } from '../ChromeCast/SubtitlesServer';
-import { PopCornShow } from '../PopcornApi/PopCornShow';
+import { PopCornShow } from '../popcornApi/PopCornShow';
 import {
   PopCornShowDetailsTorrent,
   PopCornShowEpisode
-} from '../PopcornApi/PopCornShowDetails';
-import { PopCornMovie, PopCornMovieTorrent } from '../PopcornApi/PopCornMovie';
+} from '../popcornApi/PopCornShowDetails';
+import { PopCornMovie, PopCornMovieTorrent } from '../popcornApi/PopCornMovie';
 import { Status, ServerStatus } from '../schema/schema';
 import { MediaId } from '../types/MediaId';
 
@@ -24,7 +24,9 @@ export class Player {
   getStatus(): Status {
     const status = {
       filename: this.torrentStreaming.getFilename() || '',
-      cover: this.currentLoadArgs ? this.getImage(this.currentLoadArgs): undefined,
+      cover: this.currentLoadArgs
+        ? this.getImage(this.currentLoadArgs)
+        : undefined,
       server: this._status,
       chromecast: this.chromeCast.playerState,
       device: this.chromeCast.getDeviceName(),

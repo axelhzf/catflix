@@ -1,93 +1,31 @@
+import { logger } from '../logger';
 import * as _ from 'lodash';
-import { PopCornApi } from './PopcornApi/PopCornApi';
+import { ChromeCast } from '../ChromeCast/ChromeCast';
+import { PopCornMovieTorrentQuality } from '../popcornApi/PopCornMovie';
+import { PopCornShowEpisodeTorrents } from '../popcornApi/PopCornShowDetails';
+import { Player } from '../Player/Player';
 import {
-  PopCornMovie,
-  PopCornMovieTorrentQuality
-} from './PopcornApi/PopCornMovie';
-import {
-  EpisodesShowArgs,
-  MovieQueryArgs,
-  MoviesQueryArgs,
-  ShowsQueryArgs,
+  PauseMutationArgs,
   PlayEpisodeMutationArgs,
   PlayMovieMutationArgs,
-  ShowQueryArgs,
-  PauseMutationArgs,
   ResumeMutationArgs,
   StopMutationArgs
-} from './schema/schema';
-import { PopCornShow } from './PopcornApi/PopCornShow';
-import {
-  PopCornShowEpisode,
-  PopCornShowEpisodeTorrents
-} from './PopcornApi/PopCornShowDetails';
-import { Player } from './Player/Player';
-import { logger } from './logger';
-import { ChromeCast } from './ChromeCast/ChromeCast';
+} from '../schema/schema';
+import { popcornApi } from '../popcornApi/popCornApi';
 
-const popCornApi = new PopCornApi();
 const player = new Player();
 
-export default {
+export const playerResolver = {
   Query: {
-    async movies(obj: undefined, args: MoviesQueryArgs) {
-      return await popCornApi.getMovies(args.page || undefined);
-    },
-    async movie(obj: undefined, args: MovieQueryArgs) {
-      return await popCornApi.getMovie(args.id);
-    },
-    async shows(obj: undefined, args: ShowsQueryArgs) {
-      const shows = await popCornApi.getShows(args.page || undefined);
-      return shows;
-    },
-    async show(obj: undefined, args: ShowQueryArgs) {
-      const show = await popCornApi.getShow(args.id);
-      return show;
-    },
     status: () => player.getStatus(),
     devices: async () => {
       const devices = await ChromeCast.searchDevices();
       return devices;
     }
   },
-  Movie: {
-    id: (movie: PopCornMovie) => movie._id,
-    torrents(movie: PopCornMovie) {
-      const torrents = _.flatMap(movie.torrents, (torrentQuality, lang) =>
-        _.map(torrentQuality, (torrent, quality) => ({
-          lang,
-          quality,
-          url: torrent ? torrent.url : undefined
-        }))
-      );
-      return torrents;
-    }
-  },
-  Show: {
-    id: (show: PopCornShow) => show._id,
-    numSeasons: (show: PopCornShow) => show.num_seasons,
-    episodes: async (show: PopCornShow, args: EpisodesShowArgs) => {
-      const id = show._id;
-      const showDetails = await popCornApi.getShow(id);
-      const episodes =
-        args.limit == null
-          ? showDetails.episodes
-          : showDetails.episodes.slice(0, args.limit);
-      return episodes;
-    }
-  },
-  Episode: {
-    id: (episode: PopCornShowEpisode) => episode.tvdb_id,
-    torrents(episode: PopCornShowEpisode) {
-      const torrents = _.map(episode.torrents, (torrent, quality) => {
-        return { quality, url: torrent ? torrent.url : undefined };
-      });
-      return torrents;
-    }
-  },
   Mutation: {
     playMovie: async (obj: undefined, args: PlayMovieMutationArgs) => {
-      const movie = await popCornApi.getMovie(args.id);
+      const movie = await popcornApi.getMovie(args.id);
       if (!movie) throw new Error(`movie ${args.id} not found`);
       const torrent = args.quality
         ? movie.torrents.en[args.quality] || bestTorrent(movie.torrents.en)
@@ -106,7 +44,7 @@ export default {
         .catch(e => console.error(e));
     },
     playEpisode: async (obj: undefined, args: PlayEpisodeMutationArgs) => {
-      const show = await popCornApi.getShow(args.showId);
+      const show = await popcornApi.getShow(args.showId);
       if (!show) throw new Error(`show ${args.showId} not found`);
       const episode = _.find(
         show.episodes,
