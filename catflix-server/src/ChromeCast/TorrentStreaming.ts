@@ -39,7 +39,7 @@ export class TorrentStreaming {
   }
 
   async waitForInitialDownload() {
-    const INITIAL_PERCENTAGE = 1;
+    const INITIAL_PERCENTAGE = 5;
     let initialDownloadFinished = false;
     while (!initialDownloadFinished) {
       const stats = this.getStats();

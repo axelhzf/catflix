@@ -8,7 +8,7 @@ import { StatusBar, View } from 'react-native';
 import { ApolloClient } from "apollo-client";
 
 const client = new ApolloClient({
-  link: new HttpLink({ uri: 'http://192.168.1.40:4000/graphql' }),
+  link: new HttpLink({ uri: 'http://192.168.1.39:4000/graphql' }),
   cache: new InMemoryCache()
 });
 
