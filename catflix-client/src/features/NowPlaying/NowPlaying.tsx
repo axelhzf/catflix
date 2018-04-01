@@ -10,7 +10,7 @@ import {
 import { NavigationInjectedProps } from 'react-navigation';
 import { configHolder } from '../../config';
 import { colors } from '../../styleguide/colors';
-import { graphql, gql, compose, QueryProps } from 'react-apollo';
+import { graphql, compose, QueryProps } from 'react-apollo';
 import {
   PlayerBarPauseMutationVariables,
   PlayerBarQuery,
@@ -23,6 +23,8 @@ import {
   PlayerBarStopMutation,
   PlayerBarPauseMutation
 } from '../../schema';
+import gql from "graphql-tag";
+
 
 type Props = {
   status: QueryProps & PlayerBarQuery;

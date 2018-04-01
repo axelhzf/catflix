@@ -59,6 +59,10 @@ export type PlayerBarStopMutation = {
   stop: boolean | null,
 };
 
+export type MoviesQueryVariables = {
+  keywords?: string | null,
+};
+
 export type MoviesQuery = {
   movies:  Array< {
     id: string | null,
@@ -121,6 +125,10 @@ export type playEpisodeMutationVariables = {
 
 export type playEpisodeMutation = {
   playEpisode: boolean | null,
+};
+
+export type ShowsQueryVariables = {
+  keywords?: string | null,
 };
 
 export type ShowsQuery = {

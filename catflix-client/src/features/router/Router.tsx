@@ -49,11 +49,11 @@ const SettingsNavigator = StackNavigator(
 
 const MainNavigator = TabNavigator(
   {
-    Movies: {
-      screen: MoviesNavigator
-    },
     TvShows: {
       screen: TvShowsNavigator
+    },
+    Movies: {
+      screen: MoviesNavigator
     },
     Settings: {
       screen: SettingsNavigator

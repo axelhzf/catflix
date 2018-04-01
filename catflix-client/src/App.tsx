@@ -1,17 +1,15 @@
 import * as React from 'react';
-import {
-  ApolloClient,
-  createNetworkInterface,
-  ApolloProvider
-} from 'react-apollo';
+import { ApolloProvider } from 'react-apollo';
+import { InMemoryCache} from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
 import { RootTabNavigator } from './features/router/Router';
 import { configHolder } from './config';
 import { StatusBar, View } from 'react-native';
+import { ApolloClient } from "apollo-client";
 
 const client = new ApolloClient({
-  networkInterface: createNetworkInterface({
-    uri: 'http://192.168.1.37:4000/graphql'
-  })
+  link: new HttpLink({ uri: 'http://192.168.1.40:4000/graphql' }),
+  cache: new InMemoryCache()
 });
 
 type State = {

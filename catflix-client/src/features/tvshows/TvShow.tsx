@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { ChildProps, compose, gql, graphql } from 'react-apollo';
+import { ChildProps, compose, graphql } from 'react-apollo';
 import {
   FlatList,
   StyleSheet,
@@ -15,6 +15,7 @@ import { Loading } from '../../styleguide/Loading';
 import { Error } from '../../styleguide/Error';
 import { colors } from '../../styleguide/colors';
 import { Ionicons } from '@expo/vector-icons';
+import gql from 'graphql-tag';
 
 type Props = {
   navigation: any;

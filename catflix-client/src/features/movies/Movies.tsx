@@ -1,74 +1,106 @@
 import * as React from 'react';
-import { ChildProps, gql, graphql, compose } from 'react-apollo';
 import {
   Dimensions,
   FlatList,
   StyleSheet,
+  View
 } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
-import { MoviesQuery, playMovieMutationVariables } from '../../schema';
-import { configHolder } from '../../config';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../styleguide/colors';
-import { CoverCell } from '../../styleguide/CoverCell';
-import { Loading } from '../../styleguide/Loading';
-import { Error } from '../../styleguide/Error';
+import {NavigationInjectedProps} from 'react-navigation';
+import {MoviesQuery, MoviesQueryVariables, playMovieMutation, playMovieMutationVariables} from '../../schema';
+import {configHolder} from '../../config';
+import {Ionicons} from '@expo/vector-icons';
+import {colors} from '../../styleguide/colors';
+import {CoverCell} from '../../styleguide/CoverCell';
+import {Loading} from '../../styleguide/Loading';
+import {Error} from '../../styleguide/Error';
+import gql from 'graphql-tag';
+import {Query, Mutation} from 'react-apollo';
+import {SearchInput} from "../../styleguide/SearchInput";
+import {DebounceInput} from "../../styleguide/DebouncedInput";
 
 type Props = NavigationInjectedProps;
 
 type Movie = MoviesQuery['movies'][0];
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const columns = 3;
 const columnWidth = width / columns;
 
-class Movies extends React.Component<ChildProps<Props, MoviesQuery>> {
 
-  static navigationOptions = ({ navigation }) => ({
+class MoviesQueryFetcher extends Query<MoviesQuery, MoviesQueryVariables> {
+}
+
+type State = {
+  query: string
+}
+
+export default class Movies extends React.Component<Props, State> {
+
+  static navigationOptions = ({navigation}) => ({
     title: 'Movies',
-    tabBarIcon: ({ focused, tintColor }) => {
+    tabBarIcon: ({focused, tintColor}) => {
       return <Ionicons name='ios-film' size={25} color={tintColor}/>;
     }
   });
 
-  handleSelectMovie = async (movie: Movie) => {
-    let config = configHolder.get();
-    const variables: playMovieMutationVariables = {
-      id: movie.id,
-      quality: config.quality,
-      subtitleLang: config.subtitleLang,
-      device: config.device
-    };
-    await this.props.mutate({ variables });
-    this.props.navigation.navigate('NowPlaying');
+  state: State = {
+    query: ''
   };
 
   render() {
-    if (this.props.data.loading) return <Loading />;
-    if (this.props.data.error)
-      return (
-        <Error
-          message={this.props.data.error.message}
-          onPressTryAgain={() => this.props.data.refetch().catch(() => null)}
-        />
-      );
-
-    const movies = this.props.data.movies;
     return (
-      <FlatList
-        style={styles.container}
-        keyExtractor={item => item.id}
-        data={movies}
-        numColumns={columns}
-        renderItem={({ item }: { item: Movie }) => (
-          <CoverCell
-            title={item.title}
-            image={item.images.poster}
-            key={item.id}
-            onPress={() => this.handleSelectMovie(item)}
-          />
+      <Mutation mutation={playMovieMutation}>
+        {playMovie => (
+          <View style={{flex: 1}}>
+            <SearchInput
+              placeholder="Search..."
+              value={this.state.query}
+              onChangeText={value => this.setState({query: value})}
+            />
+            <DebounceInput value={this.state.query} timeout={150}>
+              {(keywords, valid) => (
+                <View style={{flex: 1}}>
+                  {!valid && <Loading/>}
+                  {valid && <MoviesQueryFetcher query={moviesQuery} variables={{keywords}}>
+                    {({loading, error, data, refetch}) => {
+                      if (loading) return <Loading/>;
+                      if (error) return <Error message={error.message}
+                                               onPressTryAgain={() => refetch().catch(() => null)}/>;
+                      return (
+                        <FlatList
+                          style={styles.container}
+                          keyExtractor={item => item.id}
+                          data={data.movies}
+                          numColumns={columns}
+                          renderItem={({item}: { item: Movie }) => (
+                            <CoverCell
+                              title={item.title}
+                              image={item.images.poster}
+                              key={item.id}
+                              onPress={async () => {
+                                let config = configHolder.get();
+                                const variables: playMovieMutationVariables = {
+                                  id: item.id,
+                                  quality: config.quality,
+                                  subtitleLang: config.subtitleLang,
+                                  device: config.device
+                                };
+                                await playMovie({ variables });
+                                this.props.navigation.navigate('NowPlaying');
+                              }}
+                            />
+                          )}
+                        />
+                      )
+                    }}
+                  </MoviesQueryFetcher>
+                  }
+                </View>
+              )}
+            </DebounceInput>
+          </View>
         )}
-      />
+      </Mutation>
     );
   }
 }
@@ -101,25 +133,23 @@ const styles = StyleSheet.create({
   }
 });
 
-const enhance = compose(
-  graphql(gql`
-    query Movies {
-      movies {
-        id
-        title
-        synopsis
-        images {
-          banner
-          fanart
-          poster
-        }
+const moviesQuery = gql`
+  query Movies($keywords: String) {
+    movies(keywords: $keywords) {
+      id
+      title
+      synopsis
+      images {
+        banner
+        fanart
+        poster
       }
     }
-  `),
-  graphql(gql`
-    mutation playMovie($id: String!, $quality: String, $subtitleLang: String, $device: String!) {
-      playMovie(id: $id, quality: $quality, subtitleLang: $subtitleLang, device: $device)
-    }
-  `)
-);
-export default enhance(Movies);
+  }
+`;
+
+const playMovieMutation = gql`
+  mutation playMovie($id: String!, $quality: String, $subtitleLang: String, $device: String!) {
+    playMovie(id: $id, quality: $quality, subtitleLang: $subtitleLang, device: $device)
+  }
+`;

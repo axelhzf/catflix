@@ -11,9 +11,10 @@ import { NavigationInjectedProps } from 'react-navigation';
 import { Config, configHolder } from '../../config';
 import { Ionicons } from '@expo/vector-icons';
 import { compose } from 'redux';
-import { graphql, gql, QueryProps } from 'react-apollo';
+import { graphql, QueryProps } from 'react-apollo';
 import { DevicesQuery } from '../../schema';
 import { ModalClose } from '../../styleguide/ModalClose';
+import gql from 'graphql-tag';
 
 type Props = {
   devices: QueryProps & DevicesQuery;
