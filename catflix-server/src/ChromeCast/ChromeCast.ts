@@ -133,6 +133,13 @@ export class ChromeCast {
   }
 
   async stop(device: string) {
+    await Promise.race([
+      this.stopInternal(device),
+      this.await(3000)
+    ]);
+  }
+
+  private async stopInternal(device: string) {
     if (!this.player) {
       await this.init(device);
     }
@@ -141,6 +148,11 @@ export class ChromeCast {
       await this.player.stopAsync();
     }
   }
+
+  private async await(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
 
   private async getPlayerState(): Promise<PlayerState | undefined> {
     const status = await this.player.getStatusAsync();

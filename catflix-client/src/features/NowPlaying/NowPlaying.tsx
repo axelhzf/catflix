@@ -95,8 +95,8 @@ class NowPlaying extends React.Component<Props> {
   }
 
   handleClose = async () => {
-    //const config = configHolder.get();
-    //await this.props.stop({ variables: { device: config.device } });
+    const config = configHolder.get();
+    await this.props.stop({ variables: { device: config.device } });
     this.props.navigation.goBack(null);
   };
 

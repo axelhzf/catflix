@@ -122,9 +122,15 @@ export class Player {
       this.currentLoad.cancel();
       logger.info('current load canceled');
     }
+    logger.info('stopping chromecast', device);
     await this.chromeCast.stop(device);
+    logger.info('stopped chromecast');
+    logger.info('stopping subtitles server');
     await this.subtitlesServer.destroy();
+    logger.info('stopped subtitles server');
+    logger.info('stopping torrent server');
     await this.torrentStreaming.destroy();
+    logger.info('stopped torrent server');
   }
 }
 
